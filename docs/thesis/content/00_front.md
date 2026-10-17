@@ -1,0 +1,17 @@
+@acknowledgements
+We express our sincere gratitude to our project guide, Kanhaiya Sharma, School of Computer Science and Engineering, VIT-AP University, for the guidance, encouragement and critical feedback given at every review of this capstone project. The emphasis on measuring every claim shaped the way this work is evaluated and reported.
+
+We thank the Dean and the Program Chair of the School of Computer Science and Engineering, and the members of the review panel, whose questions at the first and second reviews helped us sharpen the problem statement and the evaluation protocol.
+
+We are grateful to VIT-AP University for providing the academic environment and resources for this work. We also acknowledge the creators of the public datasets and open-source software on which this project is built, in particular the VGGFace2, CelebA and LFW datasets, and the InsightFace, PyTorch, ONNX Runtime, OpenCV, supervision and Streamlit projects.
+
+Finally, we thank our families and friends for their constant support and patience throughout the course of this project.
+
+@abstract
+Searching for a missing person across many CCTV cameras is a natural application of face recognition, but it creates a serious privacy problem: pooling footage or face data from many sites in one place exposes every bystander who walked past a camera and creates a single point of failure. This project, FedMPS (Federated Missing-Person Search), builds and evaluates a missing-person search system in which camera sites collaborate without sharing raw video, face crops or unprotected biometric templates.
+
+A pretrained ArcFace face-recognition model (43.6 million parameters) is kept frozen, and only a small residual adapter of 66,240 parameters is trained by federated learning with FedProx across five simulated camera nodes, which reduces each model update from 174.4 MB to 0.26 MB. Three privacy mechanisms are implemented and measured: secure aggregation with pairwise Diffie–Hellman masks, differential privacy on model updates, and cancelable watchlist templates that are keyed differently for every site. An operational pipeline performs face detection, tracking, quality gating, matching and track-level voting at each node, and a human operator must confirm every alert before any face crop reaches the server; every action is recorded in an audit log.
+
+The system is evaluated on 172,620 CCTV-degraded VGGFace2 images of 8,631 identities, with a 3,021-person watchlist and 18,126 probes of people not on the watchlist, using open-set identification metrics. Federated training reaches the accuracy of centralised training on pooled data (rank-1 0.9473 against 0.9476), and secure aggregation costs no accuracy. However, no training regime improves on the frozen backbone (rank-1 0.9474): the adapter gives no measurable gain on this data, and differential privacy has no operating point that is both private and usable. On real CCTV video from the ChokePoint dataset, the live pipeline raised a correct alert for 95.2% of walk-throughs by enrolled people, typically within 1.3 seconds, and never named the wrong person; 3.9% of other people triggered a false alert at the current threshold. These results, including the negative ones, are reported as measured.
+
+**Keywords:** federated learning, face recognition, missing person search, secure aggregation, differential privacy, cancelable biometrics, open-set identification.

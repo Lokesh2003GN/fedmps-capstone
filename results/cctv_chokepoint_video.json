@@ -1,0 +1,531 @@
+{
+ "dataset": "ChokePoint",
+ "sequences": [
+  "P1E_S1_C1",
+  "P1E_S2_C2",
+  "P1E_S3_C3",
+  "P1E_S4_C1",
+  "P1L_S1_C1",
+  "P1L_S2_C2",
+  "P1L_S3_C3",
+  "P1L_S4_C1",
+  "P2E_S1_C3.1",
+  "P2E_S1_C3.2",
+  "P2E_S2_C2.1",
+  "P2E_S2_C2.2",
+  "P2E_S3_C1.1",
+  "P2E_S3_C1.2",
+  "P2E_S4_C2.1",
+  "P2E_S4_C2.2",
+  "P2L_S1_C1.1",
+  "P2L_S1_C1.2",
+  "P2L_S2_C2.1",
+  "P2L_S2_C2.2",
+  "P2L_S3_C3.1",
+  "P2L_S3_C3.2",
+  "P2L_S4_C2.1",
+  "P2L_S4_C2.2"
+ ],
+ "splits": 10,
+ "n_enrol": 3,
+ "threshold": 0.24,
+ "vote": "3/5",
+ "sample_fps": 8,
+ "device": "cuda",
+ "max_frames": null,
+ "funnel": {
+  "P1E_S1_C1": {
+   "frames_processed": 573,
+   "detections": 425,
+   "gate": {
+    "total_faces": 270,
+    "passed": 238,
+    "rejected": 32,
+    "rejection_rate": 0.11851851851851852,
+    "by_reason": {
+     "too_small": 31,
+     "passed": 238,
+     "too_blurry": 1
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P1E_S2_C2": {
+   "frames_processed": 593,
+   "detections": 320,
+   "gate": {
+    "total_faces": 196,
+    "passed": 196,
+    "rejected": 0,
+    "rejection_rate": 0.0,
+    "by_reason": {
+     "passed": 196
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P1E_S3_C3": {
+   "frames_processed": 617,
+   "detections": 279,
+   "gate": {
+    "total_faces": 144,
+    "passed": 144,
+    "rejected": 0,
+    "rejection_rate": 0.0,
+    "by_reason": {
+     "passed": 144
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P1E_S4_C1": {
+   "frames_processed": 590,
+   "detections": 425,
+   "gate": {
+    "total_faces": 244,
+    "passed": 240,
+    "rejected": 4,
+    "rejection_rate": 0.01639344262295082,
+    "by_reason": {
+     "passed": 240,
+     "too_small": 4
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P1L_S1_C1": {
+   "frames_processed": 890,
+   "detections": 750,
+   "gate": {
+    "total_faces": 616,
+    "passed": 247,
+    "rejected": 369,
+    "rejection_rate": 0.599025974025974,
+    "by_reason": {
+     "too_small": 369,
+     "passed": 247
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P1L_S2_C2": {
+   "frames_processed": 941,
+   "detections": 470,
+   "gate": {
+    "total_faces": 299,
+    "passed": 268,
+    "rejected": 31,
+    "rejection_rate": 0.10367892976588629,
+    "by_reason": {
+     "passed": 268,
+     "too_small": 31
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P1L_S3_C3": {
+   "frames_processed": 1007,
+   "detections": 346,
+   "gate": {
+    "total_faces": 219,
+    "passed": 196,
+    "rejected": 23,
+    "rejection_rate": 0.1050228310502283,
+    "by_reason": {
+     "passed": 196,
+     "too_small": 23
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P1L_S4_C1": {
+   "frames_processed": 957,
+   "detections": 793,
+   "gate": {
+    "total_faces": 589,
+    "passed": 229,
+    "rejected": 360,
+    "rejection_rate": 0.6112054329371817,
+    "by_reason": {
+     "too_small": 360,
+     "passed": 229
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P2E_S1_C3.1": {
+   "frames_processed": 542,
+   "detections": 404,
+   "gate": {
+    "total_faces": 254,
+    "passed": 249,
+    "rejected": 5,
+    "rejection_rate": 0.01968503937007874,
+    "by_reason": {
+     "passed": 249,
+     "too_small": 5
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P2E_S1_C3.2": {
+   "frames_processed": 190,
+   "detections": 124,
+   "gate": {
+    "total_faces": 79,
+    "passed": 44,
+    "rejected": 35,
+    "rejection_rate": 0.4430379746835443,
+    "by_reason": {
+     "too_small": 35,
+     "passed": 44
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P2E_S2_C2.1": {
+   "frames_processed": 545,
+   "detections": 426,
+   "gate": {
+    "total_faces": 234,
+    "passed": 230,
+    "rejected": 4,
+    "rejection_rate": 0.017094017094017096,
+    "by_reason": {
+     "passed": 230,
+     "too_small": 4
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P2E_S2_C2.2": {
+   "frames_processed": 184,
+   "detections": 140,
+   "gate": {
+    "total_faces": 77,
+    "passed": 49,
+    "rejected": 28,
+    "rejection_rate": 0.36363636363636365,
+    "by_reason": {
+     "too_small": 28,
+     "passed": 49
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P2E_S3_C1.1": {
+   "frames_processed": 1035,
+   "detections": 1206,
+   "gate": {
+    "total_faces": 672,
+    "passed": 242,
+    "rejected": 430,
+    "rejection_rate": 0.6398809523809523,
+    "by_reason": {
+     "too_small": 429,
+     "passed": 242,
+     "too_blurry": 1
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P2E_S3_C1.2": {
+   "frames_processed": 218,
+   "detections": 196,
+   "gate": {
+    "total_faces": 114,
+    "passed": 44,
+    "rejected": 70,
+    "rejection_rate": 0.6140350877192983,
+    "by_reason": {
+     "too_small": 70,
+     "passed": 44
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P2E_S4_C2.1": {
+   "frames_processed": 988,
+   "detections": 862,
+   "gate": {
+    "total_faces": 456,
+    "passed": 213,
+    "rejected": 243,
+    "rejection_rate": 0.5328947368421053,
+    "by_reason": {
+     "too_small": 243,
+     "passed": 213
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P2E_S4_C2.2": {
+   "frames_processed": 201,
+   "detections": 157,
+   "gate": {
+    "total_faces": 72,
+    "passed": 44,
+    "rejected": 28,
+    "rejection_rate": 0.3888888888888889,
+    "by_reason": {
+     "too_small": 28,
+     "passed": 44
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P2L_S1_C1.1": {
+   "frames_processed": 998,
+   "detections": 916,
+   "gate": {
+    "total_faces": 704,
+    "passed": 253,
+    "rejected": 451,
+    "rejection_rate": 0.640625,
+    "by_reason": {
+     "too_small": 451,
+     "passed": 253
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P2L_S1_C1.2": {
+   "frames_processed": 197,
+   "detections": 147,
+   "gate": {
+    "total_faces": 113,
+    "passed": 43,
+    "rejected": 70,
+    "rejection_rate": 0.6194690265486725,
+    "by_reason": {
+     "too_small": 70,
+     "passed": 43
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P2L_S2_C2.1": {
+   "frames_processed": 920,
+   "detections": 756,
+   "gate": {
+    "total_faces": 570,
+    "passed": 240,
+    "rejected": 330,
+    "rejection_rate": 0.5789473684210527,
+    "by_reason": {
+     "too_small": 330,
+     "passed": 240
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P2L_S2_C2.2": {
+   "frames_processed": 229,
+   "detections": 137,
+   "gate": {
+    "total_faces": 95,
+    "passed": 41,
+    "rejected": 54,
+    "rejection_rate": 0.5684210526315789,
+    "by_reason": {
+     "too_small": 54,
+     "passed": 41
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P2L_S3_C3.1": {
+   "frames_processed": 967,
+   "detections": 973,
+   "gate": {
+    "total_faces": 639,
+    "passed": 261,
+    "rejected": 378,
+    "rejection_rate": 0.5915492957746479,
+    "by_reason": {
+     "too_small": 377,
+     "passed": 261,
+     "too_blurry": 1
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P2L_S3_C3.2": {
+   "frames_processed": 213,
+   "detections": 170,
+   "gate": {
+    "total_faces": 103,
+    "passed": 39,
+    "rejected": 64,
+    "rejection_rate": 0.6213592233009708,
+    "by_reason": {
+     "too_small": 63,
+     "passed": 39,
+     "too_blurry": 1
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P2L_S4_C2.1": {
+   "frames_processed": 977,
+   "detections": 773,
+   "gate": {
+    "total_faces": 575,
+    "passed": 214,
+    "rejected": 361,
+    "rejection_rate": 0.6278260869565218,
+    "by_reason": {
+     "too_small": 361,
+     "passed": 214
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  },
+  "P2L_S4_C2.2": {
+   "frames_processed": 179,
+   "detections": 130,
+   "gate": {
+    "total_faces": 99,
+    "passed": 36,
+    "rejected": 63,
+    "rejection_rate": 0.6363636363636364,
+    "by_reason": {
+     "too_small": 63,
+     "passed": 36
+    },
+    "thresholds": {
+     "min_iod_px": 24,
+     "min_blur": 35.0,
+     "max_yaw_deg": 45.0
+    }
+   }
+  }
+ },
+ "elapsed_sec": 351.8,
+ "arms": {
+  "frozen_backbone": {
+   "pass_detection_rate": 0.9521072796934866,
+   "crowd_false_alarm_rate": 0.03942652329749104,
+   "wrong_identity_alerts": 0.0,
+   "unattributed_alerts": 4.0,
+   "median_time_to_alert_s": 1.3,
+   "totals": {
+    "mate_passes": 2088.0,
+    "crowd_passes": 2232.0,
+    "detected": 1988.0,
+    "wrong_identity_alerts": 0.0,
+    "crowd_alerts": 88.0,
+    "crowd_passes_alerted": 88.0,
+    "unattributed_alerts": 4.0
+   }
+  },
+  "federated_adapter": {
+   "pass_detection_rate": 0.9521072796934866,
+   "crowd_false_alarm_rate": 0.03718637992831541,
+   "wrong_identity_alerts": 0.0,
+   "unattributed_alerts": 7.0,
+   "median_time_to_alert_s": 1.3,
+   "totals": {
+    "mate_passes": 2088.0,
+    "crowd_passes": 2232.0,
+    "detected": 1988.0,
+    "wrong_identity_alerts": 0.0,
+    "crowd_alerts": 83.0,
+    "crowd_passes_alerted": 83.0,
+    "unattributed_alerts": 7.0
+   }
+  }
+ }
+}

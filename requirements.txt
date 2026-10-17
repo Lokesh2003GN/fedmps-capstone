@@ -1,0 +1,33 @@
+# FedMPS dependencies. See HOW_TO_RUN.md for the full setup.
+#
+#   pip install -r requirements.txt
+#
+# --- core ------------------------------------------------------------------
+numpy>=1.24,<3
+opencv-python>=4.8
+scikit-learn>=1.3          # also provides the automatic LFW download
+
+# --- training (training/) --------------------------------------------------
+torch>=2.0
+
+# --- figures (report_figures/, and the training run's own figures) ---------
+matplotlib>=3.7
+
+# --- Streamlit application (application/) ----------------------------------
+streamlit>=1.50            # the consoles use st.dataframe(width="stretch")
+supervision>=0.18          # ByteTrack
+
+# --- face backbone: ArcFace (buffalo_l), used for every reported number ----
+#
+# Laptop / demo machine (CPU):
+#
+#   pip install insightface onnxruntime
+#
+# AWS GPU training machine (CUDA) - install the GPU build instead, so
+# training/01_prepare_data.py --device cuda runs on the GPU:
+#
+#   pip install insightface onnxruntime-gpu
+#
+# insightface builds a C extension and needs a C++ toolchain on Windows.
+# Without a backbone the code falls back to a synthetic embedder: everything
+# still runs, but the numbers are not reportable.

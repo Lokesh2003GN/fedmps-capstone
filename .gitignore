@@ -1,0 +1,86 @@
+# FedMPS .gitignore
+#
+# What goes to GitHub: the code (fedmps/, training/, application/,
+# report_figures/), the documentation, the measured results, the report
+# figures, the trained adapter and the demo inputs.
+# What stays local: anything large, regenerable, licence-restricted or
+# private (faces of real people captured by the demo).
+
+# --- Python -----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# --- virtual environments ---------------------------------------------------
+.venv/
+venv/
+env/
+
+# --- old runs, backups and leftovers (6.5 GB; see archive/MOVED_FILES.md) ---
+archive/
+
+# --- datasets and embeddings ------------------------------------------------
+# VGGFace2 embeddings: 338 MB per file (GitHub rejects files over 100 MB), and
+# derived from a licence-restricted dataset. Regenerate on AWS with
+# training/01_prepare_data.py (see HOW_TO_RUN.md, section 2).
+artifacts_vgg_big/
+artifacts_*/
+# LFW download cache
+cache/
+
+# artifacts/: keep only selector.json, which the application needs to issue
+# templates. The rest is a synthetic smoke-test set and the demo database,
+# which holds cases and audit entries.
+artifacts/*
+!artifacts/selector.json
+
+# --- demo outputs (regenerated on every scan) -------------------------------
+media/alerts/
+media/*_annotated.mp4
+results/video_node*.json
+*.sqlite
+*.sqlite-journal
+
+# Your own camera footage of a real person (the "vamsi" case, 13 Oct).
+# Delete this line only if that person has agreed to it being public.
+media/node2.mp4
+
+# Unreferenced image left over from testing.
+media/download.jpg
+
+# --- training-run figures (the review document's copies are in figures/) ----
+figures/training_run/
+
+# --- thesis build: intermediates and figures no longer in the thesis --------
+# All regenerable with docs/thesis/make_thesis_figures.py and capture_screens.py.
+docs/thesis/figures/audit_rows.json
+docs/thesis/figures/fl_round.png
+docs/thesis/figures/server_console.png
+docs/thesis/figures/confirmed_sighting.png
+# Internal build tracker with team details still to confirm.
+docs/thesis/PROGRESS.md
+# Word and LibreOffice lock files and temporary exports
+.~lock.*#
+*.tmp
+
+# --- logs outside training/aws_logs/ -----------------------------------------
+/*.log
+
+# --- secrets ------------------------------------------------------------------
+.env
+.streamlit/secrets.toml
+
+# --- editors, OS and local tooling ------------------------------------------
+.claude/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+~$*
+
+# --- personal viva preparation notes (kept local) ---------------------------
+review3/
+thesis_guides/

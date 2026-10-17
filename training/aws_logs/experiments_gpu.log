@@ -1,0 +1,477 @@
+images        : 100000
+identities    : 5000
+backbone      : insightface
+nodes         : 5
+test images   : 70000
+extra non-mates: 66114
+  node_0:  150 ids   2000 train  1000 val
+  node_1:  225 ids   3000 train  1500 val
+  node_2:  300 ids   4000 train  2000 val
+  node_3:  375 ids   5000 train  2500 val
+  node_4:  450 ids   6000 train  3000 val
+
+[run] experiments: degradation, three_way, dp_sweep, masking, templates, fedprox, mia
+[exp] degradation: clean vs degraded probes, frozen backbone alone
+[exp]   clean    rank1=0.9214  tpir@fpir=0.0001=0.0004  tpir@fpir=0.001=0.1037  tpir@fpir=0.01=0.8208  ver_auc=0.9834
+[exp]   degraded rank1=0.4807  tpir@fpir=0.0001=0.0109  tpir@fpir=0.001=0.0770  tpir@fpir=0.01=0.2091  ver_auc=0.9412
+[exp]   rank-1 lost to degradation: +0.4408
+[exp] three_way: local-only vs federated vs centralised
+[fl] gallery 1750 identities | 33250 mate probes | 101114 non-mate probes | 6000 verification pairs
+[fl] no adapter (frozen backbone alone): rank1=0.4807  tpir@fpir=0.0001=0.0109  tpir@fpir=0.001=0.0770  tpir@fpir=0.01=0.2091  ver_auc=0.9412
+[fl] local_only: 5 nodes x 30 epochs each
+[fl]   node_0: n=2000  rank1=0.4564  sim_gain=+0.0047
+[fl]   node_1: n=3000  rank1=0.4545  sim_gain=+0.0090
+[fl]   node_2: n=4000  rank1=0.4608  sim_gain=+0.0032
+[fl]   node_3: n=5000  rank1=0.4552  sim_gain=+0.0089
+[fl]   node_4: n=6000  rank1=0.4259  sim_gain=+0.0364
+[fl] local_only: mean rank1=0.4505 (worst 0.4259, best 0.4608)
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   1/30  rank1=0.4906  sim_gain=+0.0053  |delta|=0.0990
+[fl]   round   2/30  rank1=0.4902  sim_gain=+0.0056  |delta|=0.0657
+[fl]   round   3/30  rank1=0.4896  sim_gain=+0.0063  |delta|=0.0572
+[fl]   round   4/30  rank1=0.4889  sim_gain=+0.0066  |delta|=0.0505
+[fl]   round   5/30  rank1=0.4890  sim_gain=+0.0068  |delta|=0.0456
+[fl]   round   6/30  rank1=0.4885  sim_gain=+0.0068  |delta|=0.0418
+[fl]   round   7/30  rank1=0.4878  sim_gain=+0.0066  |delta|=0.0390
+[fl]   round   8/30  rank1=0.4869  sim_gain=+0.0065  |delta|=0.0363
+[fl]   round   9/30  rank1=0.4858  sim_gain=+0.0063  |delta|=0.0351
+[fl]   round  10/30  rank1=0.4853  sim_gain=+0.0062  |delta|=0.0333
+[fl]   round  11/30  rank1=0.4844  sim_gain=+0.0059  |delta|=0.0323
+[fl]   round  12/30  rank1=0.4848  sim_gain=+0.0058  |delta|=0.0316
+[fl]   round  13/30  rank1=0.4841  sim_gain=+0.0057  |delta|=0.0305
+[fl]   round  14/30  rank1=0.4837  sim_gain=+0.0055  |delta|=0.0299
+[fl]   round  15/30  rank1=0.4838  sim_gain=+0.0054  |delta|=0.0297
+[fl]   round  16/30  rank1=0.4836  sim_gain=+0.0054  |delta|=0.0290
+[fl]   round  17/30  rank1=0.4831  sim_gain=+0.0052  |delta|=0.0290
+[fl]   round  18/30  rank1=0.4831  sim_gain=+0.0051  |delta|=0.0287
+[fl]   round  19/30  rank1=0.4823  sim_gain=+0.0051  |delta|=0.0287
+[fl]   round  20/30  rank1=0.4820  sim_gain=+0.0051  |delta|=0.0282
+[fl]   round  21/30  rank1=0.4818  sim_gain=+0.0050  |delta|=0.0286
+[fl]   round  22/30  rank1=0.4817  sim_gain=+0.0049  |delta|=0.0283
+[fl]   round  23/30  rank1=0.4818  sim_gain=+0.0048  |delta|=0.0279
+[fl]   round  24/30  rank1=0.4819  sim_gain=+0.0048  |delta|=0.0279
+[fl]   round  25/30  rank1=0.4816  sim_gain=+0.0048  |delta|=0.0281
+[fl]   round  26/30  rank1=0.4817  sim_gain=+0.0048  |delta|=0.0278
+[fl]   round  27/30  rank1=0.4815  sim_gain=+0.0048  |delta|=0.0277
+[fl]   round  28/30  rank1=0.4813  sim_gain=+0.0047  |delta|=0.0274
+[fl]   round  29/30  rank1=0.4808  sim_gain=+0.0048  |delta|=0.0273
+[fl]   round  30/30  rank1=0.4813  sim_gain=+0.0048  |delta|=0.0274
+[fl] federated: rank1=0.4813  tpir@fpir=0.0001=0.0089  tpir@fpir=0.001=0.0680  tpir@fpir=0.01=0.1980  ver_auc=0.9519
+[fl] centralised: 20000 images, 1500 identities, pooled into one client (30 rounds x 1 epoch, mu=3.0)
+[fl] federated: FedProx, 1 nodes, 30 rounds, 1 sampled per round
+[fl]   round   1/30  rank1=0.4897  sim_gain=+0.0052  |delta|=0.1496
+[fl]   round   2/30  rank1=0.4883  sim_gain=+0.0050  |delta|=0.1114
+[fl]   round   3/30  rank1=0.4870  sim_gain=+0.0045  |delta|=0.0964
+[fl]   round   4/30  rank1=0.4859  sim_gain=+0.0043  |delta|=0.0905
+[fl]   round   5/30  rank1=0.4846  sim_gain=+0.0043  |delta|=0.0829
+[fl]   round   6/30  rank1=0.4841  sim_gain=+0.0038  |delta|=0.0810
+[fl]   round   7/30  rank1=0.4825  sim_gain=+0.0038  |delta|=0.0791
+[fl]   round   8/30  rank1=0.4817  sim_gain=+0.0034  |delta|=0.0769
+[fl]   round   9/30  rank1=0.4807  sim_gain=+0.0030  |delta|=0.0759
+[fl]   round  10/30  rank1=0.4806  sim_gain=+0.0021  |delta|=0.0760
+[fl]   round  11/30  rank1=0.4789  sim_gain=+0.0025  |delta|=0.0749
+[fl]   round  12/30  rank1=0.4792  sim_gain=+0.0023  |delta|=0.0734
+[fl]   round  13/30  rank1=0.4788  sim_gain=+0.0025  |delta|=0.0742
+[fl]   round  14/30  rank1=0.4795  sim_gain=+0.0025  |delta|=0.0735
+[fl]   round  15/30  rank1=0.4790  sim_gain=+0.0025  |delta|=0.0739
+[fl]   round  16/30  rank1=0.4782  sim_gain=+0.0026  |delta|=0.0725
+[fl]   round  17/30  rank1=0.4777  sim_gain=+0.0023  |delta|=0.0721
+[fl]   round  18/30  rank1=0.4773  sim_gain=+0.0021  |delta|=0.0735
+[fl]   round  19/30  rank1=0.4775  sim_gain=+0.0024  |delta|=0.0725
+[fl]   round  20/30  rank1=0.4769  sim_gain=+0.0021  |delta|=0.0727
+[fl]   round  21/30  rank1=0.4780  sim_gain=+0.0025  |delta|=0.0719
+[fl]   round  22/30  rank1=0.4785  sim_gain=+0.0021  |delta|=0.0721
+[fl]   round  23/30  rank1=0.4784  sim_gain=+0.0028  |delta|=0.0709
+[fl]   round  24/30  rank1=0.4785  sim_gain=+0.0023  |delta|=0.0721
+[fl]   round  25/30  rank1=0.4777  sim_gain=+0.0029  |delta|=0.0724
+[fl]   round  26/30  rank1=0.4783  sim_gain=+0.0030  |delta|=0.0723
+[fl]   round  27/30  rank1=0.4783  sim_gain=+0.0033  |delta|=0.0715
+[fl]   round  28/30  rank1=0.4783  sim_gain=+0.0033  |delta|=0.0725
+[fl]   round  29/30  rank1=0.4781  sim_gain=+0.0034  |delta|=0.0720
+[fl]   round  30/30  rank1=0.4785  sim_gain=+0.0031  |delta|=0.0728
+[fl] federated: rank1=0.4785  tpir@fpir=0.0001=0.0108  tpir@fpir=0.001=0.0670  tpir@fpir=0.01=0.1945  ver_auc=0.9519
+[fl] centralised: rank1=0.4785  tpir@fpir=0.0001=0.0108  tpir@fpir=0.001=0.0670  tpir@fpir=0.01=0.1945  ver_auc=0.9519
+
+[fl] three-way comparison, rank-1 on held-out identities
+[fl]   no adapter        0.4807
+[fl]   local only (mean) 0.4505
+[fl]   federated         0.4813   (+0.0307 vs local only)
+[fl]   centralised       0.4785   (-0.0028 headroom remaining)
+
+[fl] WARNING: FEDERATED BEAT CENTRALISED. Check two things, in this order, before concluding anything.
+      (1) Leakage. Confirm no identity and no image index is shared between any node and the held-out set. If they are, the run is invalid.
+      (2) Matched tuning. Centralised is only an upper bound if it is regularised at least as well as the federated arm. An under-regularised baseline overfits and stops bounding anything, which looks identical to leakage in this table but is not. run_centralised trains one pooled client under the same rounds, epochs and proximal term, so this should hold - but if you have changed either arm's hyperparameters independently, re-check it.
+      A small margin after both checks pass is a real, reportable result: averaging across heterogeneous clients is itself a regulariser, and on small non-IID data it can beat pooling.
+
+[fl] saved the federated adapter to /home/ubuntu/fedmps/checkpoints/adapter_final.pt
+[exp] dp_sweep: 5 settings x 30 rounds
+[fl] federated: FedProx, 5 nodes, 3 rounds, 5 sampled per round
+[fl]   round   1/3  rank1=0.4899  sim_gain=+0.0049  |delta|=0.0972
+[fl]   round   2/3  rank1=0.4896  sim_gain=+0.0052  |delta|=0.0647
+[fl]   round   3/3  rank1=0.4890  sim_gain=+0.0058  |delta|=0.0563
+[fl] federated: rank1=0.4890  tpir@fpir=0.0001=0.0096  tpir@fpir=0.001=0.0754  tpir@fpir=0.01=0.2137  ver_auc=0.9471
+[exp]   calibrated clip_norm=0.113 from 15 observed updates (median 0.098, p95 0.151) -> 33% clipped
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   1/30  rank1=0.4897  sim_gain=+0.0048  |delta|=0.0805
+[fl]   round   2/30  rank1=0.4911  sim_gain=+0.0051  |delta|=0.0597
+[fl]   round   3/30  rank1=0.4903  sim_gain=+0.0056  |delta|=0.0524
+[fl]   round   4/30  rank1=0.4902  sim_gain=+0.0060  |delta|=0.0479
+[fl]   round   5/30  rank1=0.4895  sim_gain=+0.0062  |delta|=0.0442
+[fl]   round   6/30  rank1=0.4887  sim_gain=+0.0063  |delta|=0.0414
+[fl]   round   7/30  rank1=0.4884  sim_gain=+0.0062  |delta|=0.0388
+[fl]   round   8/30  rank1=0.4881  sim_gain=+0.0061  |delta|=0.0369
+[fl]   round   9/30  rank1=0.4866  sim_gain=+0.0059  |delta|=0.0356
+[fl]   round  10/30  rank1=0.4856  sim_gain=+0.0059  |delta|=0.0344
+[fl]   round  11/30  rank1=0.4855  sim_gain=+0.0056  |delta|=0.0332
+[fl]   round  12/30  rank1=0.4850  sim_gain=+0.0054  |delta|=0.0325
+[fl]   round  13/30  rank1=0.4841  sim_gain=+0.0053  |delta|=0.0316
+[fl]   round  14/30  rank1=0.4831  sim_gain=+0.0050  |delta|=0.0313
+[fl]   round  15/30  rank1=0.4831  sim_gain=+0.0050  |delta|=0.0308
+[fl]   round  16/30  rank1=0.4823  sim_gain=+0.0049  |delta|=0.0303
+[fl]   round  17/30  rank1=0.4825  sim_gain=+0.0046  |delta|=0.0300
+[fl]   round  18/30  rank1=0.4825  sim_gain=+0.0045  |delta|=0.0298
+[fl]   round  19/30  rank1=0.4817  sim_gain=+0.0045  |delta|=0.0295
+[fl]   round  20/30  rank1=0.4818  sim_gain=+0.0045  |delta|=0.0292
+[fl]   round  21/30  rank1=0.4818  sim_gain=+0.0044  |delta|=0.0292
+[fl]   round  22/30  rank1=0.4820  sim_gain=+0.0043  |delta|=0.0288
+[fl]   round  23/30  rank1=0.4815  sim_gain=+0.0043  |delta|=0.0284
+[fl]   round  24/30  rank1=0.4814  sim_gain=+0.0042  |delta|=0.0289
+[fl]   round  25/30  rank1=0.4814  sim_gain=+0.0041  |delta|=0.0287
+[fl]   round  26/30  rank1=0.4814  sim_gain=+0.0042  |delta|=0.0282
+[fl]   round  27/30  rank1=0.4812  sim_gain=+0.0043  |delta|=0.0284
+[fl]   round  28/30  rank1=0.4811  sim_gain=+0.0042  |delta|=0.0282
+[fl]   round  29/30  rank1=0.4811  sim_gain=+0.0042  |delta|=0.0279
+[fl]   round  30/30  rank1=0.4808  sim_gain=+0.0043  |delta|=0.0280
+[fl] federated: rank1=0.4808  tpir@fpir=0.0001=0.0100  tpir@fpir=0.001=0.0709  tpir@fpir=0.01=0.1997  ver_auc=0.9522
+[exp]   sigma=0.00  eps=     inf  rank1=0.4808  clipped=0.0
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   1/30  rank1=0.4073  sim_gain=+0.0052  |delta|=1.8495
+[fl]   round   2/30  rank1=0.3533  sim_gain=-0.0702  |delta|=1.8465
+[fl]   round   3/30  rank1=0.3239  sim_gain=-0.1128  |delta|=1.8504
+[fl]   round   4/30  rank1=0.2946  sim_gain=-0.1397  |delta|=1.8560
+[fl]   round   5/30  rank1=0.2749  sim_gain=-0.1579  |delta|=1.8460
+[fl]   round   6/30  rank1=0.2530  sim_gain=-0.1724  |delta|=1.8573
+[fl]   round   7/30  rank1=0.2389  sim_gain=-0.1842  |delta|=1.8456
+[fl]   round   8/30  rank1=0.2251  sim_gain=-0.1925  |delta|=1.8463
+[fl]   round   9/30  rank1=0.2150  sim_gain=-0.1988  |delta|=1.8490
+[fl]   round  10/30  rank1=0.2008  sim_gain=-0.2030  |delta|=1.8518
+[fl]   round  11/30  rank1=0.1922  sim_gain=-0.2080  |delta|=1.8453
+[fl]   round  12/30  rank1=0.1871  sim_gain=-0.2122  |delta|=1.8438
+[fl]   round  13/30  rank1=0.1806  sim_gain=-0.2145  |delta|=1.8530
+[fl]   round  14/30  rank1=0.1823  sim_gain=-0.2160  |delta|=1.8564
+[fl]   round  15/30  rank1=0.1799  sim_gain=-0.2163  |delta|=1.8476
+[fl]   round  16/30  rank1=0.1860  sim_gain=-0.2166  |delta|=1.8483
+[fl]   round  17/30  rank1=0.1821  sim_gain=-0.2147  |delta|=1.8471
+[fl]   round  18/30  rank1=0.1747  sim_gain=-0.2160  |delta|=1.8492
+[fl]   round  19/30  rank1=0.1751  sim_gain=-0.2186  |delta|=1.8428
+[fl]   round  20/30  rank1=0.1715  sim_gain=-0.2195  |delta|=1.8512
+[fl]   round  21/30  rank1=0.1702  sim_gain=-0.2208  |delta|=1.8513
+[fl]   round  22/30  rank1=0.1673  sim_gain=-0.2225  |delta|=1.8560
+[fl]   round  23/30  rank1=0.1642  sim_gain=-0.2238  |delta|=1.8486
+[fl]   round  24/30  rank1=0.1658  sim_gain=-0.2249  |delta|=1.8518
+[fl]   round  25/30  rank1=0.1624  sim_gain=-0.2240  |delta|=1.8569
+[fl]   round  26/30  rank1=0.1664  sim_gain=-0.2245  |delta|=1.8428
+[fl]   round  27/30  rank1=0.1673  sim_gain=-0.2245  |delta|=1.8482
+[fl]   round  28/30  rank1=0.1696  sim_gain=-0.2252  |delta|=1.8463
+[fl]   round  29/30  rank1=0.1654  sim_gain=-0.2246  |delta|=1.8477
+[fl]   round  30/30  rank1=0.1665  sim_gain=-0.2235  |delta|=1.8504
+[fl] federated: rank1=0.1665  tpir@fpir=0.0001=0.0033  tpir@fpir=0.001=0.0125  tpir@fpir=0.01=0.0320  ver_auc=0.8854
+[exp]   sigma=0.30  eps= 251.883  rank1=0.1665  clipped=1.0
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   1/30  rank1=0.2456  sim_gain=+0.0050  |delta|=3.6850
+[fl]   round   2/30  rank1=0.1560  sim_gain=-0.1792  |delta|=3.7002
+[fl]   round   3/30  rank1=0.1080  sim_gain=-0.2332  |delta|=3.6863
+[fl]   round   4/30  rank1=0.0829  sim_gain=-0.2607  |delta|=3.6888
+[fl]   round   5/30  rank1=0.0588  sim_gain=-0.2758  |delta|=3.7122
+[fl]   round   6/30  rank1=0.0542  sim_gain=-0.2903  |delta|=3.6849
+[fl]   round   7/30  rank1=0.0443  sim_gain=-0.2958  |delta|=3.6869
+[fl]   round   8/30  rank1=0.0427  sim_gain=-0.3019  |delta|=3.7077
+[fl]   round   9/30  rank1=0.0356  sim_gain=-0.3050  |delta|=3.6917
+[fl]   round  10/30  rank1=0.0344  sim_gain=-0.3126  |delta|=3.6817
+[fl]   round  11/30  rank1=0.0303  sim_gain=-0.3158  |delta|=3.6812
+[fl]   round  12/30  rank1=0.0306  sim_gain=-0.3165  |delta|=3.7019
+[fl]   round  13/30  rank1=0.0287  sim_gain=-0.3205  |delta|=3.7025
+[fl]   round  14/30  rank1=0.0288  sim_gain=-0.3225  |delta|=3.6966
+[fl]   round  15/30  rank1=0.0279  sim_gain=-0.3229  |delta|=3.6835
+[fl]   round  16/30  rank1=0.0258  sim_gain=-0.3240  |delta|=3.7066
+[fl]   round  17/30  rank1=0.0248  sim_gain=-0.3252  |delta|=3.6979
+[fl]   round  18/30  rank1=0.0245  sim_gain=-0.3260  |delta|=3.6973
+[fl]   round  19/30  rank1=0.0236  sim_gain=-0.3265  |delta|=3.6971
+[fl]   round  20/30  rank1=0.0232  sim_gain=-0.3264  |delta|=3.7080
+[fl]   round  21/30  rank1=0.0245  sim_gain=-0.3267  |delta|=3.6899
+[fl]   round  22/30  rank1=0.0259  sim_gain=-0.3263  |delta|=3.7021
+[fl]   round  23/30  rank1=0.0255  sim_gain=-0.3246  |delta|=3.7090
+[fl]   round  24/30  rank1=0.0249  sim_gain=-0.3249  |delta|=3.7041
+[fl]   round  25/30  rank1=0.0256  sim_gain=-0.3259  |delta|=3.6956
+[fl]   round  26/30  rank1=0.0241  sim_gain=-0.3259  |delta|=3.6843
+[fl]   round  27/30  rank1=0.0239  sim_gain=-0.3254  |delta|=3.7054
+[fl]   round  28/30  rank1=0.0238  sim_gain=-0.3272  |delta|=3.7013
+[fl]   round  29/30  rank1=0.0215  sim_gain=-0.3263  |delta|=3.6938
+[fl]   round  30/30  rank1=0.0213  sim_gain=-0.3283  |delta|=3.6875
+[fl] federated: rank1=0.0213  tpir@fpir=0.0001=0.0001  tpir@fpir=0.001=0.0002  tpir@fpir=0.01=0.0012  ver_auc=0.7737
+[exp]   sigma=0.60  eps=  83.616  rank1=0.0213  clipped=1.0
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   1/30  rank1=0.0857  sim_gain=+0.0052  |delta|=6.1368
+[fl]   round   2/30  rank1=0.0367  sim_gain=-0.2636  |delta|=6.1698
+[fl]   round   3/30  rank1=0.0226  sim_gain=-0.3043  |delta|=6.1779
+[fl]   round   4/30  rank1=0.0178  sim_gain=-0.3226  |delta|=6.1595
+[fl]   round   5/30  rank1=0.0142  sim_gain=-0.3343  |delta|=6.1668
+[fl]   round   6/30  rank1=0.0121  sim_gain=-0.3409  |delta|=6.1628
+[fl]   round   7/30  rank1=0.0103  sim_gain=-0.3424  |delta|=6.1551
+[fl]   round   8/30  rank1=0.0096  sim_gain=-0.3469  |delta|=6.1789
+[fl]   round   9/30  rank1=0.0090  sim_gain=-0.3504  |delta|=6.1739
+[fl]   round  10/30  rank1=0.0090  sim_gain=-0.3513  |delta|=6.1776
+[fl]   round  11/30  rank1=0.0080  sim_gain=-0.3561  |delta|=6.1690
+[fl]   round  12/30  rank1=0.0081  sim_gain=-0.3562  |delta|=6.1880
+[fl]   round  13/30  rank1=0.0074  sim_gain=-0.3581  |delta|=6.1344
+[fl]   round  14/30  rank1=0.0073  sim_gain=-0.3598  |delta|=6.1591
+[fl]   round  15/30  rank1=0.0072  sim_gain=-0.3610  |delta|=6.1751
+[fl]   round  16/30  rank1=0.0062  sim_gain=-0.3598  |delta|=6.1704
+[fl]   round  17/30  rank1=0.0059  sim_gain=-0.3634  |delta|=6.1670
+[fl]   round  18/30  rank1=0.0046  sim_gain=-0.3619  |delta|=6.1647
+[fl]   round  19/30  rank1=0.0043  sim_gain=-0.3625  |delta|=6.1433
+[fl]   round  20/30  rank1=0.0048  sim_gain=-0.3652  |delta|=6.1556
+[fl]   round  21/30  rank1=0.0042  sim_gain=-0.3643  |delta|=6.1611
+[fl]   round  22/30  rank1=0.0041  sim_gain=-0.3651  |delta|=6.1720
+[fl]   round  23/30  rank1=0.0041  sim_gain=-0.3643  |delta|=6.1510
+[fl]   round  24/30  rank1=0.0044  sim_gain=-0.3650  |delta|=6.1620
+[fl]   round  25/30  rank1=0.0043  sim_gain=-0.3655  |delta|=6.1570
+[fl]   round  26/30  rank1=0.0053  sim_gain=-0.3669  |delta|=6.1518
+[fl]   round  27/30  rank1=0.0046  sim_gain=-0.3661  |delta|=6.1508
+[fl]   round  28/30  rank1=0.0047  sim_gain=-0.3678  |delta|=6.1772
+[fl]   round  29/30  rank1=0.0049  sim_gain=-0.3681  |delta|=6.1363
+[fl]   round  30/30  rank1=0.0039  sim_gain=-0.3692  |delta|=6.1477
+[fl] federated: rank1=0.0039  tpir@fpir=0.0001=0.0000  tpir@fpir=0.001=0.0000  tpir@fpir=0.01=0.0002  ver_auc=0.6563
+[exp]   sigma=1.00  eps=  40.007  rank1=0.0039  clipped=0.0
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   1/30  rank1=0.0140  sim_gain=+0.0048  |delta|=12.3492
+[fl]   round   2/30  rank1=0.0055  sim_gain=-0.3387  |delta|=12.3339
+[fl]   round   3/30  rank1=0.0043  sim_gain=-0.3593  |delta|=12.3686
+[fl]   round   4/30  rank1=0.0033  sim_gain=-0.3719  |delta|=12.2631
+[fl]   round   5/30  rank1=0.0026  sim_gain=-0.3753  |delta|=12.2924
+[fl]   round   6/30  rank1=0.0015  sim_gain=-0.3834  |delta|=12.3383
+[fl]   round   7/30  rank1=0.0021  sim_gain=-0.3868  |delta|=12.2608
+[fl]   round   8/30  rank1=0.0017  sim_gain=-0.3895  |delta|=12.3176
+[fl]   round   9/30  rank1=0.0022  sim_gain=-0.3859  |delta|=12.3504
+[fl]   round  10/30  rank1=0.0021  sim_gain=-0.3891  |delta|=12.3038
+[fl]   round  11/30  rank1=0.0026  sim_gain=-0.3903  |delta|=12.3440
+[fl]   round  12/30  rank1=0.0019  sim_gain=-0.3923  |delta|=12.3357
+[fl]   round  13/30  rank1=0.0019  sim_gain=-0.3948  |delta|=12.2919
+[fl]   round  14/30  rank1=0.0018  sim_gain=-0.3981  |delta|=12.3126
+[fl]   round  15/30  rank1=0.0016  sim_gain=-0.3996  |delta|=12.3588
+[fl]   round  16/30  rank1=0.0019  sim_gain=-0.4013  |delta|=12.3553
+[fl]   round  17/30  rank1=0.0017  sim_gain=-0.4012  |delta|=12.3228
+[fl]   round  18/30  rank1=0.0015  sim_gain=-0.4009  |delta|=12.3258
+[fl]   round  19/30  rank1=0.0014  sim_gain=-0.4006  |delta|=12.3495
+[fl]   round  20/30  rank1=0.0014  sim_gain=-0.4016  |delta|=12.2840
+[fl]   round  21/30  rank1=0.0017  sim_gain=-0.4006  |delta|=12.3072
+[fl]   round  22/30  rank1=0.0014  sim_gain=-0.4011  |delta|=12.3529
+[fl]   round  23/30  rank1=0.0017  sim_gain=-0.4023  |delta|=12.3416
+[fl]   round  24/30  rank1=0.0019  sim_gain=-0.4035  |delta|=12.3055
+[fl]   round  25/30  rank1=0.0015  sim_gain=-0.4032  |delta|=12.3074
+[fl]   round  26/30  rank1=0.0016  sim_gain=-0.4053  |delta|=12.3049
+[fl]   round  27/30  rank1=0.0011  sim_gain=-0.4065  |delta|=12.2910
+[fl]   round  28/30  rank1=0.0011  sim_gain=-0.4063  |delta|=12.3250
+[fl]   round  29/30  rank1=0.0013  sim_gain=-0.4064  |delta|=12.3540
+[fl]   round  30/30  rank1=0.0013  sim_gain=-0.4062  |delta|=12.3202
+[fl] federated: rank1=0.0013  tpir@fpir=0.0001=0.0000  tpir@fpir=0.001=0.0000  tpir@fpir=0.01=0.0000  ver_auc=0.5608
+[exp]   sigma=2.00  eps=  15.929  rank1=0.0013  clipped=0.0
+[exp] masking: 10 rounds, with and without
+[fl] federated: FedProx, 5 nodes, 10 rounds, 5 sampled per round
+[fl]   round   1/10  rank1=0.4899  sim_gain=+0.0049  |delta|=0.0972
+[fl]   round   2/10  rank1=0.4896  sim_gain=+0.0052  |delta|=0.0647
+[fl]   round   3/10  rank1=0.4890  sim_gain=+0.0058  |delta|=0.0563
+[fl]   round   4/10  rank1=0.4894  sim_gain=+0.0061  |delta|=0.0499
+[fl]   round   5/10  rank1=0.4882  sim_gain=+0.0063  |delta|=0.0455
+[fl]   round   6/10  rank1=0.4876  sim_gain=+0.0062  |delta|=0.0418
+[fl]   round   7/10  rank1=0.4873  sim_gain=+0.0061  |delta|=0.0390
+[fl]   round   8/10  rank1=0.4865  sim_gain=+0.0060  |delta|=0.0364
+[fl]   round   9/10  rank1=0.4862  sim_gain=+0.0057  |delta|=0.0350
+[fl]   round  10/10  rank1=0.4851  sim_gain=+0.0056  |delta|=0.0339
+[fl] federated: rank1=0.4851  tpir@fpir=0.0001=0.0097  tpir@fpir=0.001=0.0748  tpir@fpir=0.01=0.2059  ver_auc=0.9495
+[fl] federated: FedProx, 5 nodes, 10 rounds, 5 sampled per round
+[fl]   round   1/10  rank1=0.4899  sim_gain=+0.0049  |delta|=0.0972
+[fl]   round   2/10  rank1=0.4896  sim_gain=+0.0052  |delta|=0.0647
+[fl]   round   3/10  rank1=0.4890  sim_gain=+0.0058  |delta|=0.0563
+[fl]   round   4/10  rank1=0.4894  sim_gain=+0.0061  |delta|=0.0499
+[fl]   round   5/10  rank1=0.4882  sim_gain=+0.0063  |delta|=0.0455
+[fl]   round   6/10  rank1=0.4876  sim_gain=+0.0062  |delta|=0.0418
+[fl]   round   7/10  rank1=0.4873  sim_gain=+0.0061  |delta|=0.0390
+[fl]   round   8/10  rank1=0.4865  sim_gain=+0.0060  |delta|=0.0364
+[fl]   round   9/10  rank1=0.4862  sim_gain=+0.0057  |delta|=0.0350
+[fl]   round  10/10  rank1=0.4851  sim_gain=+0.0056  |delta|=0.0339
+[fl] federated: rank1=0.4851  tpir@fpir=0.0001=0.0097  tpir@fpir=0.001=0.0748  tpir@fpir=0.01=0.2059  ver_auc=0.9495
+[exp]   rank1 plain=0.4851  masked=0.4851  difference=+0.00000
+[exp]   wall clock 21.2s -> 21.1s (1.00x)
+[exp] templates: sweeping [32, 64, 96, 128, 256] bits
+[exp]   float embeddings (unprotected): rank1=0.4813
+[exp]     32 bits ( 4 bytes): rank1=0.0108  cost=+0.4705
+[exp]     64 bits ( 8 bytes): rank1=0.0303  cost=+0.4509
+[exp]     96 bits (12 bytes): rank1=0.0589  cost=+0.4224
+[exp]    128 bits (16 bytes): rank1=0.0882  cost=+0.3931
+[exp]    256 bits (32 bytes): rank1=0.2009  cost=+0.2804
+[exp] fedprox: mu in [0.0, 0.01, 0.1, 1.0], 30 rounds each
+[fl] federated: FedAvg, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   1/30  rank1=0.4897  sim_gain=+0.0044  |delta|=0.1723
+[fl]   round   2/30  rank1=0.4898  sim_gain=+0.0062  |delta|=0.1720
+[fl]   round   3/30  rank1=0.4893  sim_gain=+0.0074  |delta|=0.1576
+[fl]   round   4/30  rank1=0.4878  sim_gain=+0.0081  |delta|=0.1410
+[fl]   round   5/30  rank1=0.4878  sim_gain=+0.0085  |delta|=0.1297
+[fl]   round   6/30  rank1=0.4870  sim_gain=+0.0086  |delta|=0.1199
+[fl]   round   7/30  rank1=0.4870  sim_gain=+0.0088  |delta|=0.1135
+[fl]   round   8/30  rank1=0.4868  sim_gain=+0.0089  |delta|=0.1081
+[fl]   round   9/30  rank1=0.4856  sim_gain=+0.0088  |delta|=0.1037
+[fl]   round  10/30  rank1=0.4852  sim_gain=+0.0090  |delta|=0.0998
+[fl]   round  11/30  rank1=0.4847  sim_gain=+0.0088  |delta|=0.0976
+[fl]   round  12/30  rank1=0.4841  sim_gain=+0.0090  |delta|=0.0948
+[fl]   round  13/30  rank1=0.4840  sim_gain=+0.0091  |delta|=0.0928
+[fl]   round  14/30  rank1=0.4836  sim_gain=+0.0089  |delta|=0.0916
+[fl]   round  15/30  rank1=0.4832  sim_gain=+0.0092  |delta|=0.0902
+[fl]   round  16/30  rank1=0.4827  sim_gain=+0.0092  |delta|=0.0884
+[fl]   round  17/30  rank1=0.4828  sim_gain=+0.0093  |delta|=0.0872
+[fl]   round  18/30  rank1=0.4829  sim_gain=+0.0094  |delta|=0.0859
+[fl]   round  19/30  rank1=0.4831  sim_gain=+0.0094  |delta|=0.0851
+[fl]   round  20/30  rank1=0.4827  sim_gain=+0.0096  |delta|=0.0839
+[fl]   round  21/30  rank1=0.4828  sim_gain=+0.0096  |delta|=0.0831
+[fl]   round  22/30  rank1=0.4823  sim_gain=+0.0097  |delta|=0.0827
+[fl]   round  23/30  rank1=0.4817  sim_gain=+0.0098  |delta|=0.0818
+[fl]   round  24/30  rank1=0.4817  sim_gain=+0.0100  |delta|=0.0808
+[fl]   round  25/30  rank1=0.4820  sim_gain=+0.0101  |delta|=0.0802
+[fl]   round  26/30  rank1=0.4815  sim_gain=+0.0101  |delta|=0.0796
+[fl]   round  27/30  rank1=0.4814  sim_gain=+0.0103  |delta|=0.0787
+[fl]   round  28/30  rank1=0.4814  sim_gain=+0.0104  |delta|=0.0786
+[fl]   round  29/30  rank1=0.4809  sim_gain=+0.0105  |delta|=0.0778
+[fl]   round  30/30  rank1=0.4808  sim_gain=+0.0107  |delta|=0.0770
+[fl] federated: rank1=0.4808  tpir@fpir=0.0001=0.0100  tpir@fpir=0.001=0.0702  tpir@fpir=0.01=0.1939  ver_auc=0.9542
+[exp]   mu=0     rank1=0.4808  |delta|=0.0770
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   1/30  rank1=0.4897  sim_gain=+0.0043  |delta|=0.1692
+[fl]   round   2/30  rank1=0.4896  sim_gain=+0.0062  |delta|=0.1686
+[fl]   round   3/30  rank1=0.4893  sim_gain=+0.0073  |delta|=0.1554
+[fl]   round   4/30  rank1=0.4878  sim_gain=+0.0080  |delta|=0.1394
+[fl]   round   5/30  rank1=0.4878  sim_gain=+0.0085  |delta|=0.1284
+[fl]   round   6/30  rank1=0.4871  sim_gain=+0.0085  |delta|=0.1188
+[fl]   round   7/30  rank1=0.4870  sim_gain=+0.0088  |delta|=0.1124
+[fl]   round   8/30  rank1=0.4868  sim_gain=+0.0088  |delta|=0.1071
+[fl]   round   9/30  rank1=0.4856  sim_gain=+0.0087  |delta|=0.1028
+[fl]   round  10/30  rank1=0.4853  sim_gain=+0.0090  |delta|=0.0990
+[fl]   round  11/30  rank1=0.4846  sim_gain=+0.0088  |delta|=0.0968
+[fl]   round  12/30  rank1=0.4841  sim_gain=+0.0089  |delta|=0.0940
+[fl]   round  13/30  rank1=0.4838  sim_gain=+0.0091  |delta|=0.0921
+[fl]   round  14/30  rank1=0.4835  sim_gain=+0.0089  |delta|=0.0909
+[fl]   round  15/30  rank1=0.4832  sim_gain=+0.0091  |delta|=0.0895
+[fl]   round  16/30  rank1=0.4827  sim_gain=+0.0092  |delta|=0.0876
+[fl]   round  17/30  rank1=0.4829  sim_gain=+0.0093  |delta|=0.0865
+[fl]   round  18/30  rank1=0.4832  sim_gain=+0.0093  |delta|=0.0853
+[fl]   round  19/30  rank1=0.4831  sim_gain=+0.0094  |delta|=0.0844
+[fl]   round  20/30  rank1=0.4829  sim_gain=+0.0096  |delta|=0.0832
+[fl]   round  21/30  rank1=0.4828  sim_gain=+0.0096  |delta|=0.0824
+[fl]   round  22/30  rank1=0.4822  sim_gain=+0.0097  |delta|=0.0820
+[fl]   round  23/30  rank1=0.4817  sim_gain=+0.0098  |delta|=0.0812
+[fl]   round  24/30  rank1=0.4817  sim_gain=+0.0100  |delta|=0.0802
+[fl]   round  25/30  rank1=0.4819  sim_gain=+0.0100  |delta|=0.0796
+[fl]   round  26/30  rank1=0.4815  sim_gain=+0.0100  |delta|=0.0789
+[fl]   round  27/30  rank1=0.4812  sim_gain=+0.0103  |delta|=0.0781
+[fl]   round  28/30  rank1=0.4814  sim_gain=+0.0103  |delta|=0.0780
+[fl]   round  29/30  rank1=0.4809  sim_gain=+0.0105  |delta|=0.0772
+[fl]   round  30/30  rank1=0.4809  sim_gain=+0.0106  |delta|=0.0764
+[fl] federated: rank1=0.4809  tpir@fpir=0.0001=0.0100  tpir@fpir=0.001=0.0702  tpir@fpir=0.01=0.1939  ver_auc=0.9542
+[exp]   mu=0.01  rank1=0.4809  |delta|=0.0764
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   1/30  rank1=0.4897  sim_gain=+0.0043  |delta|=0.1490
+[fl]   round   2/30  rank1=0.4899  sim_gain=+0.0060  |delta|=0.1429
+[fl]   round   3/30  rank1=0.4893  sim_gain=+0.0071  |delta|=0.1371
+[fl]   round   4/30  rank1=0.4882  sim_gain=+0.0078  |delta|=0.1257
+[fl]   round   5/30  rank1=0.4875  sim_gain=+0.0082  |delta|=0.1174
+[fl]   round   6/30  rank1=0.4870  sim_gain=+0.0082  |delta|=0.1095
+[fl]   round   7/30  rank1=0.4869  sim_gain=+0.0084  |delta|=0.1041
+[fl]   round   8/30  rank1=0.4866  sim_gain=+0.0085  |delta|=0.0993
+[fl]   round   9/30  rank1=0.4856  sim_gain=+0.0084  |delta|=0.0954
+[fl]   round  10/30  rank1=0.4854  sim_gain=+0.0086  |delta|=0.0921
+[fl]   round  11/30  rank1=0.4848  sim_gain=+0.0084  |delta|=0.0900
+[fl]   round  12/30  rank1=0.4842  sim_gain=+0.0085  |delta|=0.0876
+[fl]   round  13/30  rank1=0.4841  sim_gain=+0.0087  |delta|=0.0858
+[fl]   round  14/30  rank1=0.4834  sim_gain=+0.0085  |delta|=0.0846
+[fl]   round  15/30  rank1=0.4833  sim_gain=+0.0087  |delta|=0.0835
+[fl]   round  16/30  rank1=0.4831  sim_gain=+0.0088  |delta|=0.0817
+[fl]   round  17/30  rank1=0.4828  sim_gain=+0.0088  |delta|=0.0807
+[fl]   round  18/30  rank1=0.4831  sim_gain=+0.0089  |delta|=0.0797
+[fl]   round  19/30  rank1=0.4826  sim_gain=+0.0089  |delta|=0.0788
+[fl]   round  20/30  rank1=0.4826  sim_gain=+0.0092  |delta|=0.0777
+[fl]   round  21/30  rank1=0.4828  sim_gain=+0.0092  |delta|=0.0770
+[fl]   round  22/30  rank1=0.4822  sim_gain=+0.0092  |delta|=0.0766
+[fl]   round  23/30  rank1=0.4815  sim_gain=+0.0094  |delta|=0.0758
+[fl]   round  24/30  rank1=0.4814  sim_gain=+0.0095  |delta|=0.0750
+[fl]   round  25/30  rank1=0.4816  sim_gain=+0.0096  |delta|=0.0745
+[fl]   round  26/30  rank1=0.4816  sim_gain=+0.0096  |delta|=0.0737
+[fl]   round  27/30  rank1=0.4811  sim_gain=+0.0098  |delta|=0.0730
+[fl]   round  28/30  rank1=0.4809  sim_gain=+0.0099  |delta|=0.0728
+[fl]   round  29/30  rank1=0.4810  sim_gain=+0.0100  |delta|=0.0722
+[fl]   round  30/30  rank1=0.4810  sim_gain=+0.0102  |delta|=0.0714
+[fl] federated: rank1=0.4810  tpir@fpir=0.0001=0.0100  tpir@fpir=0.001=0.0708  tpir@fpir=0.01=0.1945  ver_auc=0.9541
+[exp]   mu=0.1   rank1=0.4810  |delta|=0.0714
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   1/30  rank1=0.4900  sim_gain=+0.0044  |delta|=0.1139
+[fl]   round   2/30  rank1=0.4900  sim_gain=+0.0054  |delta|=0.0788
+[fl]   round   3/30  rank1=0.4894  sim_gain=+0.0062  |delta|=0.0718
+[fl]   round   4/30  rank1=0.4885  sim_gain=+0.0066  |delta|=0.0661
+[fl]   round   5/30  rank1=0.4876  sim_gain=+0.0068  |delta|=0.0635
+[fl]   round   6/30  rank1=0.4869  sim_gain=+0.0067  |delta|=0.0603
+[fl]   round   7/30  rank1=0.4864  sim_gain=+0.0067  |delta|=0.0586
+[fl]   round   8/30  rank1=0.4856  sim_gain=+0.0066  |delta|=0.0565
+[fl]   round   9/30  rank1=0.4850  sim_gain=+0.0064  |delta|=0.0556
+[fl]   round  10/30  rank1=0.4845  sim_gain=+0.0064  |delta|=0.0546
+[fl]   round  11/30  rank1=0.4845  sim_gain=+0.0062  |delta|=0.0533
+[fl]   round  12/30  rank1=0.4837  sim_gain=+0.0062  |delta|=0.0524
+[fl]   round  13/30  rank1=0.4832  sim_gain=+0.0063  |delta|=0.0516
+[fl]   round  14/30  rank1=0.4834  sim_gain=+0.0060  |delta|=0.0506
+[fl]   round  15/30  rank1=0.4832  sim_gain=+0.0061  |delta|=0.0507
+[fl]   round  16/30  rank1=0.4830  sim_gain=+0.0061  |delta|=0.0497
+[fl]   round  17/30  rank1=0.4829  sim_gain=+0.0061  |delta|=0.0494
+[fl]   round  18/30  rank1=0.4827  sim_gain=+0.0061  |delta|=0.0492
+[fl]   round  19/30  rank1=0.4829  sim_gain=+0.0061  |delta|=0.0487
+[fl]   round  20/30  rank1=0.4825  sim_gain=+0.0062  |delta|=0.0478
+[fl]   round  21/30  rank1=0.4820  sim_gain=+0.0062  |delta|=0.0478
+[fl]   round  22/30  rank1=0.4822  sim_gain=+0.0062  |delta|=0.0476
+[fl]   round  23/30  rank1=0.4815  sim_gain=+0.0063  |delta|=0.0470
+[fl]   round  24/30  rank1=0.4817  sim_gain=+0.0064  |delta|=0.0468
+[fl]   round  25/30  rank1=0.4814  sim_gain=+0.0064  |delta|=0.0469
+[fl]   round  26/30  rank1=0.4813  sim_gain=+0.0064  |delta|=0.0467
+[fl]   round  27/30  rank1=0.4813  sim_gain=+0.0066  |delta|=0.0461
+[fl]   round  28/30  rank1=0.4814  sim_gain=+0.0066  |delta|=0.0454
+[fl]   round  29/30  rank1=0.4813  sim_gain=+0.0067  |delta|=0.0455
+[fl]   round  30/30  rank1=0.4814  sim_gain=+0.0069  |delta|=0.0453
+[fl] federated: rank1=0.4814  tpir@fpir=0.0001=0.0103  tpir@fpir=0.001=0.0728  tpir@fpir=0.01=0.1963  ver_auc=0.9528
+[exp]   mu=1     rank1=0.4814  |delta|=0.0453
+[exp] mia: loss-threshold membership inference
+[exp]   sample level    AUC = 0.5159  (10000 per class)
+[exp]   identity level  AUC = 0.4848  (20000 per class)
+[exp] rendering figures
+[exp]   wrote fig1_degradation.png
+[exp]   wrote fig2_three_way.png
+[exp]   wrote fig3_convergence.png
+[exp]   wrote fig4_dp_sweep.png
+[exp]   wrote fig5_det.png
+[exp]   wrote fig6_templates.png
+[exp]   wrote fig7_fedprox.png
+
+[run] wrote /home/ubuntu/fedmps/results/experiments_gpu.json
+[run]   figure fig1_degradation.png
+[run]   figure fig2_three_way.png
+[run]   figure fig3_convergence.png
+[run]   figure fig4_dp_sweep.png
+[run]   figure fig5_det.png
+[run]   figure fig6_templates.png
+[run]   figure fig7_fedprox.png
+
+[run] WARNINGS - read these before writing anything up:
+    - [three_way] FEDERATED BEAT CENTRALISED. Check two things, in this order, before concluding anything.
+      (1) Leakage. Confirm no identity and no image index is shared between any node and the held-out set. If they are, the run is invalid.
+      (2) Matched tuning. Centralised is only an upper bound if it is regularised at least as well as the federated arm. An under-regularised baseline overfits and stops bounding anything, which looks identical to leakage in this table but is not. run_centralised trains one pooled client under the same rounds, epochs and proximal term, so this should hold - but if you have changed either arm's hyperparameters independently, re-check it.
+      A small margin after both checks pass is a real, reportable result: averaging across heterogeneous clients is itself a regulariser, and on small non-IID data it can beat pooling.
+
+[run] rank-1 on held-out identities
+    no adapter     0.4807
+    local only     0.4505
+    federated      0.4813
+    centralised    0.4785
