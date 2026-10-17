@@ -22,10 +22,8 @@ Two properties make the problem hard. First, CCTV faces are small, blurred, comp
 
 The objectives of this project are:
 
-1. To build a multi-camera missing-person search pipeline (face detection, tracking, quality gating, landmark alignment, ArcFace embeddings and track-level voting) whose recognition model is trained by federated learning across camera nodes, so that raw video and face data never leave a node.
-2. To implement and measure three privacy mechanisms: pairwise-masked secure aggregation of model updates, differential privacy on updates, and cancelable watchlist templates. For each, report its accuracy cost.
-3. To evaluate the system with open-set identification metrics (true positive identification rate at a fixed false positive identification rate), using identity-disjoint training and test sets and a watchlist of thousands of people, and to compare federated training against its natural lower bound (each node training alone) and upper bound (training on pooled data).
-4. To provide a working demonstration: a server console for opening cases and a node console for human review of alerts, sharing a store with an audit log.
+1. To build a multi-camera missing-person search pipeline (face detection, tracking, quality gating, five-point landmark alignment and ArcFace embeddings) whose recognition model is trained by federated learning across camera nodes.
+2. To implement pairwise-masked secure aggregation, differential privacy on model updates and cancelable watchlist templates, and to measure the accuracy cost of each.
 
 ## 1.3 Literature Survey
 
