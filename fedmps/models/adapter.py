@@ -43,6 +43,8 @@ class Adapter(nn.Module):
     about direction.
     """
 
+    kind = "mlp"
+
     def __init__(self, cfg: AdapterConfig) -> None:
         super().__init__()
         self.cfg = cfg
@@ -100,6 +102,10 @@ class Adapter(nn.Module):
 
 
 def build_adapter(cfg: AdapterConfig, device: str = "cpu") -> Adapter:
+    """The federated module `cfg.kind` asks for: the MLP, or the backbone head."""
+    if getattr(cfg, "kind", "mlp") == "head":
+        from .head import build_head
+        return build_head(cfg, device)
     return Adapter(cfg).to(torch.device(device))
 
 
@@ -163,7 +169,8 @@ def vector_to_state(vec: torch.Tensor, reference: StateDict) -> StateDict:
     for k in sorted(reference):
         ref = reference[k]
         n = ref.numel()
-        out[k] = vec[offset:offset + n].reshape(ref.shape).to(ref.dtype)
+        out[k] = vec[offset:offset + n].reshape(ref.shape).to(device=ref.device,
+                                                            dtype=ref.dtype)
         offset += n
     if offset != vec.numel():
         raise ValueError(

@@ -37,7 +37,7 @@ import torch
 from ..config import Config
 from ..contracts import Artefacts
 from ..fl.loop import run_federated, run_three_way, _transform_of
-from ..fl.node import make_node_data
+from ..fl.node import make_node_data, uses_features
 from ..models.adapter import build_adapter, clone_state
 from ..privacy.dp import (
     clipping_report, compute_epsilon, suggest_clip_norm,
@@ -415,7 +415,7 @@ def exp_masking(art: Artefacts, cfg: Config,
 # --------------------------------------------------------------------------
 
 def exp_templates(art: Artefacts, cfg: Config,
-                  bit_widths: Sequence[int] = (32, 64, 96, 128, 256),
+                  bit_widths: Sequence[int] = (32, 64, 96, 128, 256, 512),
                   adapter_state: Optional[Dict[str, Any]] = None
                   ) -> Dict[str, Any]:
     """What does protecting the watchlist cost in accuracy?
@@ -428,10 +428,18 @@ def exp_templates(art: Artefacts, cfg: Config,
     sets = build_eval_sets(art, cfg)
 
     transform = None
+    head = None
     if adapter_state is not None:
         model = build_adapter(cfg.adapter, cfg.backbone.device)
         model.load_state_dict(adapter_state)
-        transform = _transform_of(model)
+        if getattr(model, "kind", "mlp") == "head":
+            # The head embeds images, not embeddings: re-fuse the probes from
+            # its per-image output instead of transforming fused vectors.
+            head = model
+            rows = sets.probe_rows()
+            sets = sets.with_probe_embeddings(rows, head.embed_rows(art.feat_deg, rows))
+        else:
+            transform = _transform_of(model)
 
     def apply(x: np.ndarray) -> np.ndarray:
         return x if transform is None else transform(x)
@@ -450,7 +458,9 @@ def exp_templates(art: Artefacts, cfg: Config,
     train_rows: List[int] = []
     for k in range(art.n_nodes):
         train_rows.extend(art.node(k)["train_idx"])
-    fit_emb = apply(art.emb_deg[np.asarray(train_rows)])
+    train_rows = sorted(train_rows)
+    fit_emb = (head.embed_rows(art.feat_deg, np.asarray(train_rows)) if head is not None
+               else apply(art.emb_deg[np.asarray(train_rows)]))
     fit_lab = art.labels[np.asarray(train_rows)]
 
     points: List[Dict[str, Any]] = []
@@ -542,8 +552,37 @@ def exp_fedprox(art: Artefacts, cfg: Config,
 # 7. Membership inference
 # --------------------------------------------------------------------------
 
+def _sample_holdout(art: Artefacts, frac: float, seed: int):
+    """Hold `frac` of every node identity's images out of the partition.
+
+    Returns (artefacts without those images, the held-out rows). They are
+    removed from train_idx and val_idx alike, because the federated loop
+    trains on both: a "non-member" left in val_idx is in fact a member.
+    """
+    part = copy.deepcopy(art.partition)
+    rng = np.random.default_rng(seed + 6262)
+    held: List[int] = []
+    for k in range(art.n_nodes):
+        e = part["nodes"][f"node_{k}"]
+        rows = np.asarray(sorted(e["train_idx"] + e["val_idx"]), dtype=np.int64)
+        labs = art.labels[rows]
+        order = np.argsort(labs, kind="stable")
+        keep: List[int] = []
+        for group in np.split(rows[order], np.flatnonzero(np.diff(labs[order])) + 1):
+            group = group[rng.permutation(group.size)]
+            n_out = int(round(frac * group.size))
+            held.extend(group[:n_out].tolist())
+            keep.extend(group[n_out:].tolist())
+        e["train_idx"] = sorted(keep)
+        e["val_idx"] = []
+    out = Artefacts(art.emb_clean, art.emb_deg, art.labels, part, art.meta,
+                    art.identity_names, art.emb_nonmate)
+    return out, sorted(held)
+
+
 def exp_membership_inference(art: Artefacts, cfg: Config,
-                             adapter_state: Optional[Dict[str, Any]] = None
+                             adapter_state: Optional[Dict[str, Any]] = None,
+                             rounds_override: Optional[int] = None
                              ) -> Dict[str, Any]:
     """Can an attacker tell whether a face was in a node's training data?
 
@@ -570,10 +609,19 @@ def exp_membership_inference(art: Artefacts, cfg: Config,
     """
     log("mia: loss-threshold membership inference")
 
-    if adapter_state is None:
-        sets = build_eval_sets(art, cfg)
-        res = run_federated(art, cfg, sets)
-        adapter_state = res.pop("state")
+    # Non-members must be images the attacked model never trained on. The
+    # federated loop trains on a node's train_idx and val_idx together, so
+    # val_idx cannot supply them (the first thesis run used it and so
+    # attacked members with members). Hold 20% of every training identity's
+    # images out entirely, and retrain on the rest with the same settings.
+    # `adapter_state` is ignored for that reason: it was trained on them.
+    rounds = rounds_override or cfg.fl.rounds
+    art, val_rows = _sample_holdout(art, 0.2, cfg.seed)
+    log(f"  holding back {len(val_rows)} images of training identities; "
+        f"retraining for {rounds} rounds")
+    c = _cfg_copy(cfg, fl__rounds=rounds)
+    res = run_federated(art, c, build_eval_sets(art, c))
+    adapter_state = res.pop("state")
 
     model = build_adapter(cfg.adapter, cfg.backbone.device)
     model.load_state_dict(adapter_state)
@@ -582,16 +630,19 @@ def exp_membership_inference(art: Artefacts, cfg: Config,
     def scores(rows: Sequence[int]) -> np.ndarray:
         if not len(rows):
             return np.zeros(0, dtype=np.float32)
-        data = make_node_data(art, rows, cfg.backbone.device)
+        data = make_node_data(art, rows, cfg.backbone.device,
+                              features=uses_features(cfg))
+        out = []
         with torch.no_grad():
-            adapted = model(data.degraded)
-            return (adapted * data.clean).sum(dim=1).cpu().numpy()
+            for i in range(0, data.n, 8192):
+                sel = torch.arange(i, min(i + 8192, data.n), device=data.labels.device)
+                x, clean, _ = data.batch(sel)
+                out.append((model(x) * clean).sum(dim=1).cpu().numpy())
+        return np.concatenate(out)
 
     train_rows: List[int] = []
-    val_rows: List[int] = []
     for k in range(art.n_nodes):
         train_rows.extend(art.node(k)["train_idx"])
-        val_rows.extend(art.node(k)["val_idx"])
     heldout_rows = list(art.partition["test_idx"])
 
     member = scores(train_rows)
@@ -629,7 +680,8 @@ def exp_membership_inference(art: Artefacts, cfg: Config,
         "verdict": verdict,
         "sample_level": {
             **sample_level,
-            "nonmembers": "held-out images of training identities",
+            "nonmembers": ("20% of every training identity's images, held out of "
+                           "training; the attacked model was retrained without them"),
             "comparable_to": "[4] reported MIA AUC 0.507-0.532",
         },
         "identity_level": {
@@ -915,8 +967,13 @@ DEFAULT_EXPERIMENTS = ("degradation", "operating_points", "three_way",
 def run_all(art: Artefacts, cfg: Config,
             which: Sequence[str] = DEFAULT_EXPERIMENTS,
             rounds_override: Optional[int] = None,
-            figures: bool = True) -> Dict[str, Any]:
-    """Run the requested experiments and collect everything into one dict."""
+            figures: bool = True,
+            save_to: Optional[Path] = None) -> Dict[str, Any]:
+    """Run the requested experiments and collect everything into one dict.
+
+    With `save_to`, the results so far are written after every experiment,
+    so a failure late in a long run does not lose the experiments before it.
+    """
     unknown = set(which) - set(ALL_EXPERIMENTS)
     if unknown:
         raise ValueError(f"unknown experiments: {sorted(unknown)}; "
@@ -929,35 +986,50 @@ def run_all(art: Artefacts, cfg: Config,
                                    art.meta.get("backbone") == "dummy"}
     adapter_state = None
 
+    def checkpoint() -> None:
+        if save_to is not None:
+            from ..contracts import save_json
+            save_json(save_to, results)
+
     if "degradation" in which:
         results["degradation"] = exp_degradation(art, cfg)
+        checkpoint()
 
     if "operating_points" in which:
         results["operating_points"] = exp_operating_points(art, cfg)
+        checkpoint()
 
     if "three_way" in which:
         out = exp_three_way(art, cfg)
         results["three_way"] = out
-        ckpt = cfg.paths.checkpoints / "adapter_final.pt"
+        ckpt = cfg.paths.checkpoints / ("head_final.pt" if uses_features(cfg)
+                                        else "adapter_final.pt")
         if ckpt.exists():
             adapter_state = torch.load(ckpt, map_location="cpu",
                                        weights_only=False)["state_dict"]
+        checkpoint()
 
     if "dp_sweep" in which:
         results["dp_sweep"] = exp_dp_sweep(art, cfg,
                                            rounds_override=rounds_override)
+        checkpoint()
     if "masking" in which:
         results["masking"] = exp_masking(art, cfg,
                                          rounds_override=rounds_override)
+        checkpoint()
     if "templates" in which:
         results["templates"] = exp_templates(art, cfg,
                                              adapter_state=adapter_state)
+        checkpoint()
     if "fedprox" in which:
         results["fedprox"] = exp_fedprox(art, cfg,
                                          rounds_override=rounds_override)
+        checkpoint()
     if "mia" in which:
         results["mia"] = exp_membership_inference(art, cfg,
-                                                  adapter_state=adapter_state)
+                                                  adapter_state=adapter_state,
+                                                  rounds_override=rounds_override)
+        checkpoint()
 
     results["elapsed_sec"] = round(time.time() - t0, 1)
 

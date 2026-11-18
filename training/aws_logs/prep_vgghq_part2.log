@@ -1,0 +1,12 @@
+start 2026-10-25T11:12:07Z resume-from 30720
+[prepare] 628,699 images, 4,605 identities (9-414 each, median 128)
+[prepare] partitioning across 5 nodes, 30% of identities held out
+nodes: 5   held-out identities: 1382 (190646 images)
+  node_0:  322 ids  42677 train     1 val   camera[face=0.05 blur=0.90 jpeg=0.54]
+  node_1:  483 ids  67576 train     1 val   camera[face=0.90 blur=0.94 jpeg=0.80]
+  node_2:  644 ids  90003 train     1 val   camera[face=0.65 blur=0.40 jpeg=0.32]
+  node_3:  805 ids  106408 train     1 val   camera[face=0.34 blur=0.01 jpeg=0.12]
+  node_4:  969 ids  131384 train     1 val   camera[face=0.98 blur=0.10 jpeg=0.91]
+[prepare] ArcFace w600k_r50.onnx with 679 exposed, providers=['CUDAExecutionProvider', 'CPUExecutionProvider']
+[prepare] resuming at row 30,720 (30,686 aligned before it)
+[prepare] 40,960/628,699  83 img/s  ETA 118 min  aligned 40,922  unreadable 0

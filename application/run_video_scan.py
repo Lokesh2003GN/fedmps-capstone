@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -38,6 +39,23 @@ from fedmps.store import key_fingerprint, open_store             # noqa: E402
 
 def log(msg: str) -> None:
     print(f"[video] {msg}", flush=True)
+
+
+def write_progress(path: Path | None, state: dict) -> None:
+    """Write the scan state for the node console's progress bar.
+
+    Written to a temporary file and then renamed, so the console never reads
+    half a file. If the console happens to hold the file open (Windows), this
+    update is skipped; the next frame writes a newer one anyway.
+    """
+    if path is None:
+        return
+    tmp = path.with_suffix(".tmp")
+    try:
+        tmp.write_text(json.dumps(state), encoding="utf-8")
+        os.replace(tmp, path)
+    except OSError:
+        pass
 
 
 def enrol_from_image(cfg, store, image_path: Path, name: str,
@@ -122,7 +140,12 @@ def main() -> int:
                     help="run face detection, the backbone and the adapter on "
                          "this device (cuda needs onnxruntime-gpu, e.g. on the "
                          "AWS GPU instance). Default: the config's, cpu.")
+    ap.add_argument("--progress-file", type=Path, default=None,
+                    help="write the scan's progress to this JSON file after "
+                         "every frame (used by the node console)")
     args = ap.parse_args()
+    mode = "first-match" if args.stop_on_alert else "full"
+    write_progress(args.progress_file, {"phase": "loading", "mode": mode})
 
     cfg = default_config()
     if args.device:
@@ -165,14 +188,38 @@ def main() -> int:
     out_path = args.out or (cfg.paths.media /
                             f"{args.video.stem}_annotated.mp4")
 
-    pipeline = VideoPipeline(cfg, node_id=args.node, store=store)
-    stats = pipeline.process_video(args.video, out_path=out_path,
-                                   camera=args.camera,
-                                   max_frames=args.max_frames,
-                                   fps_cap=args.fps_cap or None)
+    last = {"total_frames": 0}
+
+    def on_progress(p: dict) -> None:
+        last["total_frames"] = p.get("total_frames") or 0
+        write_progress(args.progress_file, {"phase": "scanning", "mode": mode, **p})
+
+    try:
+        pipeline = VideoPipeline(cfg, node_id=args.node, store=store)
+        stats = pipeline.process_video(args.video, out_path=out_path,
+                                       camera=args.camera,
+                                       max_frames=args.max_frames,
+                                       fps_cap=args.fps_cap or None,
+                                       progress=on_progress)
+    except Exception as exc:
+        write_progress(args.progress_file,
+                       {"phase": "error", "mode": mode, "error": str(exc)})
+        raise
 
     results_path = cfg.paths.results / f"video_node{args.node}.json"
     save_json(results_path, stats)
+    write_progress(args.progress_file, {
+        "phase": "done", "mode": mode,
+        "stopped_early": bool(args.stop_on_alert and stats["alerts_raised"]),
+        "frame": (min(stats["frames_in_file"], last["total_frames"])
+                  or stats["frames_in_file"]),
+        "total_frames": last["total_frames"],
+        "processed": stats["frames_processed"],
+        "fraction": 1.0, "elapsed_s": stats["seconds"], "fps": stats["fps"],
+        "alerts": [{k: a[k] for k in ("alert_id", "case_id", "track_id", "score")}
+                   for a in stats["alerts"]],
+        "annotated_output": stats["annotated_output"],
+    })
 
     print()
     log(f"annotated video : {out_path}")

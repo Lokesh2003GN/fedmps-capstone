@@ -43,7 +43,14 @@ RULE = "#d9d9d9"
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--artifacts-suffix", default="_vgg_big")
+    ap.add_argument("--log", default=None,
+                    help="quote the extract from this log file (a 01b streaming "
+                         "run) instead of composing it from meta.json")
+    ap.add_argument("--stacked", action="store_true",
+                    help="chart above the log extract, larger text (the thesis "
+                         "version), written to docs/thesis/figures/node_split_stacked.png")
     args = ap.parse_args()
+    ts = 1.25 if args.stacked else 1.0       # text scale
 
     cfg = default_config()
     if args.artifacts_suffix:
@@ -66,41 +73,76 @@ def main() -> int:
     held_img = len(art.partition["test_idx"])
     align = art.meta.get("alignment", {})
 
-    fig, (ax, ax_log) = plt.subplots(
-        1, 2, figsize=(13.5, 5.2), dpi=200,
-        gridspec_kw={"width_ratios": [1.45, 1.0]})
+    if args.stacked:
+        fig, (ax, ax_log) = plt.subplots(
+            2, 1, figsize=(9.0, 10.5), dpi=200,
+            gridspec_kw={"height_ratios": [1.35, 1.0]})
+    else:
+        fig, (ax, ax_log) = plt.subplots(
+            1, 2, figsize=(13.5, 5.2), dpi=200,
+            gridspec_kw={"width_ratios": [1.45, 1.0]})
 
     x = np.arange(len(nodes))
-    w = 0.38
-    ax.bar(x - w / 2, tr_img, w, color=TRAIN, label="train images")
-    ax.bar(x + w / 2, va_img, w, color=VAL, label="validation images")
-
-    # Direct-label the identity count per node - the quantity the split is
-    # actually made on. Image counts are on the axis already.
-    for i, (ti, vi) in enumerate(zip(tr_id, va_id)):
-        ax.text(i, max(tr_img[i], va_img[i]) + max(tr_img) * 0.035,
-                f"{ti + vi} IDs\n{ti} train / {vi} val",
-                ha="center", fontsize=8.5, color=INK, linespacing=1.3)
+    if any(va_img):
+        w = 0.38
+        ax.bar(x - w / 2, tr_img, w, color=TRAIN, label="train images")
+        ax.bar(x + w / 2, va_img, w, color=VAL, label="validation images")
+        # Direct-label the identity count per node - the quantity the split is
+        # actually made on. Image counts are on the axis already.
+        for i, (ti, vi) in enumerate(zip(tr_id, va_id)):
+            ax.text(i, max(tr_img[i], va_img[i]) + max(tr_img) * 0.035,
+                    f"{ti + vi} IDs\n{ti} train / {vi} val",
+                    ha="center", fontsize=8.5 * ts, color=INK, linespacing=1.3)
+        tick_labels = [f"Node {k}" for k in nodes]
+        top = max(tr_img)
+        title = ("VGGFace2 split across 5 federated nodes\n"
+                 "identities held out whole, so validation is people no node trained on")
+    else:
+        # Every node identity trains; the held-out 30% is the validation set.
+        w = 0.6
+        top = max(tr_img + [held_img])
+        ax.bar(x, tr_img, w, color=TRAIN, label="training images, at the nodes")
+        ax.bar([len(nodes)], [held_img], w, color=VAL, label="held-out validation images")
+        for i, ti in enumerate(tr_id):
+            ax.text(i, tr_img[i] + top * 0.03, f"{ti} IDs", ha="center",
+                    fontsize=9 * ts, color=INK)
+        ax.text(len(nodes), held_img + top * 0.03, f"{held_out:,} IDs",
+                ha="center", fontsize=9 * ts, color=INK)
+        x = np.arange(len(nodes) + 1)
+        tick_labels = [f"Node {k}" for k in nodes] + ["Held out"]
+        title = ("VGGFace2-HQ split by identity: 70% across 5 nodes, 30% held out\n"
+                 "no person appears at two nodes, or at a node and in the held-out set")
 
     ax.set_xticks(x)
-    ax.set_xticklabels([f"Node {k}" for k in nodes])
-    ax.set_ylabel("Images", fontsize=11)
-    ax.set_ylim(0, max(tr_img) * 1.30)
-    ax.set_title("VGGFace2 split across 5 federated nodes\n"
-                 "identities held out whole, so validation is people no node trained on",
-                 fontsize=11, color=INK)
-    ax.legend(frameon=False, fontsize=9, loc="upper left")
+    ax.set_xticklabels(tick_labels)
+    ax.set_ylabel("Images", fontsize=11 * ts)
+    ax.set_ylim(0, top * 1.25)
+    ax.set_title(title, fontsize=11 * ts, color=INK)
+    ax.legend(frameon=False, fontsize=9 * ts, loc="upper left")
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
     for s in ("left", "bottom"):
         ax.spines[s].set_color(RULE)
-    ax.tick_params(colors=MUTED, labelsize=9)
+    ax.tick_params(colors=MUTED, labelsize=9 * ts)
     ax.grid(axis="y", color=RULE, linewidth=0.6, alpha=0.7)
     ax.set_axisbelow(True)
 
     missed = align.get("missed", 0)
     total = align.get("aligned", 0) + missed
-    extract = "\n".join([
+    log_name = "full_run_vgg_big.log"
+    extract = None
+    if args.log:
+        import re
+        import textwrap
+
+        log_name = Path(args.log).name
+        keep = re.compile(r"images, .* identities|identities held out|"
+                          r"held-out identities|^\s+node_\d|alignment:|done in")
+        lines = [l.rstrip() for l in Path(args.log).read_text(
+                 encoding="utf-8", errors="replace").splitlines() if keep.search(l)]
+        extract = "\n".join(textwrap.fill(l.strip(), 46, subsequent_indent="    ")
+                            for l in lines)
+    extract = extract or "\n".join([
         f"[loader] folder: {art.meta.get('n_identities'):,} identities,",
         f"    reading {art.meta.get('n_images'):,} images at 160px",
         "",
@@ -122,15 +164,16 @@ def main() -> int:
         f"    fl.val_identity_frac = {cfg.fl.val_identity_frac}",
     ])
     ax_log.axis("off")
-    ax_log.set_title("Extract from pipeline log (full_run_vgg_big.log)",
-                     fontsize=11, color=INK)
-    ax_log.text(0.0, 0.97, extract, fontsize=8.6, family="monospace",
+    ax_log.set_title(f"Extract from pipeline log ({log_name})",
+                     fontsize=11 * ts, color=INK)
+    ax_log.text(0.0, 0.97, extract, fontsize=8.6 * ts, family="monospace",
                 va="top", ha="left", color=INK,
                 bbox=dict(boxstyle="round,pad=0.7", facecolor="#f4f4f4",
                           edgecolor=RULE))
 
     fig.tight_layout()
-    out = cfg.paths.figures / "fig02_node_split.png"
+    out = (cfg.paths.root / "docs" / "thesis" / "figures" / "node_split_stacked.png"
+           if args.stacked else cfg.paths.figures / "fig02_node_split.png")
     fig.savefig(out, dpi=200, bbox_inches="tight", facecolor="white")
     plt.close(fig)
 

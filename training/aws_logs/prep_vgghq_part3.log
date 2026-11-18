@@ -1,0 +1,78 @@
+start 2026-10-25T11:26:42Z resume-from 40960
+[prepare] 628,699 images, 4,605 identities (9-414 each, median 128)
+[prepare] partitioning across 5 nodes, 30% of identities held out
+nodes: 5   held-out identities: 1382 (190646 images)
+  node_0:  322 ids  42677 train     1 val   camera[face=0.05 blur=0.90 jpeg=0.54]
+  node_1:  483 ids  67576 train     1 val   camera[face=0.90 blur=0.94 jpeg=0.80]
+  node_2:  644 ids  90003 train     1 val   camera[face=0.65 blur=0.40 jpeg=0.32]
+  node_3:  805 ids  106408 train     1 val   camera[face=0.34 blur=0.01 jpeg=0.12]
+  node_4:  969 ids  131384 train     1 val   camera[face=0.98 blur=0.10 jpeg=0.91]
+[prepare] ArcFace w600k_r50.onnx with 679 exposed, providers=['CUDAExecutionProvider', 'CPUExecutionProvider']
+[prepare] resuming at row 40,960 (40,922 aligned before it)
+[prepare] 51,200/628,699  117 img/s  ETA 82 min  aligned 51,157  unreadable 0
+[prepare] 61,440/628,699  120 img/s  ETA 79 min  aligned 61,387  unreadable 0
+[prepare] 71,680/628,699  120 img/s  ETA 77 min  aligned 71,621  unreadable 0
+[prepare] 81,920/628,699  121 img/s  ETA 76 min  aligned 81,856  unreadable 0
+[prepare] 92,160/628,699  121 img/s  ETA 74 min  aligned 92,089  unreadable 0
+[prepare] 102,400/628,699  121 img/s  ETA 73 min  aligned 102,321  unreadable 0
+[prepare] 112,640/628,699  121 img/s  ETA 71 min  aligned 112,548  unreadable 0
+[prepare] 122,880/628,699  121 img/s  ETA 70 min  aligned 122,778  unreadable 0
+[prepare] 133,120/628,699  121 img/s  ETA 68 min  aligned 133,009  unreadable 0
+[prepare] 143,360/628,699  121 img/s  ETA 67 min  aligned 143,244  unreadable 0
+[prepare] 153,600/628,699  121 img/s  ETA 65 min  aligned 153,473  unreadable 0
+[prepare] 163,840/628,699  121 img/s  ETA 64 min  aligned 163,709  unreadable 0
+[prepare] 174,080/628,699  121 img/s  ETA 63 min  aligned 173,942  unreadable 0
+[prepare] 184,320/628,699  121 img/s  ETA 61 min  aligned 184,176  unreadable 0
+[prepare] 194,560/628,699  121 img/s  ETA 60 min  aligned 194,410  unreadable 0
+[prepare] 204,800/628,699  121 img/s  ETA 58 min  aligned 204,638  unreadable 0
+[prepare] 215,040/628,699  121 img/s  ETA 57 min  aligned 214,864  unreadable 0
+[prepare] 225,280/628,699  121 img/s  ETA 55 min  aligned 225,093  unreadable 0
+[prepare] 235,520/628,699  121 img/s  ETA 54 min  aligned 235,330  unreadable 0
+[prepare] 245,760/628,699  121 img/s  ETA 53 min  aligned 245,558  unreadable 0
+[prepare] 256,000/628,699  121 img/s  ETA 51 min  aligned 255,790  unreadable 0
+[prepare] 266,240/628,699  121 img/s  ETA 50 min  aligned 266,020  unreadable 0
+[prepare] 276,480/628,699  121 img/s  ETA 48 min  aligned 276,253  unreadable 0
+[prepare] 286,720/628,699  121 img/s  ETA 47 min  aligned 286,483  unreadable 0
+[prepare] 296,960/628,699  121 img/s  ETA 46 min  aligned 296,706  unreadable 0
+[prepare] 307,200/628,699  121 img/s  ETA 44 min  aligned 306,941  unreadable 0
+[prepare] 317,440/628,699  121 img/s  ETA 43 min  aligned 317,172  unreadable 0
+[prepare] 327,680/628,699  121 img/s  ETA 41 min  aligned 327,408  unreadable 0
+[prepare] 337,920/628,699  121 img/s  ETA 40 min  aligned 337,644  unreadable 0
+[prepare] 348,160/628,699  121 img/s  ETA 39 min  aligned 347,881  unreadable 0
+[prepare] 358,400/628,699  121 img/s  ETA 37 min  aligned 358,113  unreadable 0
+[prepare] 368,640/628,699  121 img/s  ETA 36 min  aligned 368,342  unreadable 0
+[prepare] 378,880/628,699  121 img/s  ETA 34 min  aligned 378,576  unreadable 0
+[prepare] 389,120/628,699  121 img/s  ETA 33 min  aligned 388,808  unreadable 0
+[prepare] 399,360/628,699  121 img/s  ETA 32 min  aligned 399,040  unreadable 0
+[prepare] 409,600/628,699  121 img/s  ETA 30 min  aligned 409,277  unreadable 0
+[prepare] 419,840/628,699  121 img/s  ETA 29 min  aligned 419,508  unreadable 0
+[prepare] 430,080/628,699  121 img/s  ETA 27 min  aligned 429,736  unreadable 0
+[prepare] 440,320/628,699  121 img/s  ETA 26 min  aligned 439,964  unreadable 0
+[prepare] 450,560/628,699  121 img/s  ETA 25 min  aligned 450,195  unreadable 0
+[prepare] 460,800/628,699  121 img/s  ETA 23 min  aligned 460,427  unreadable 0
+[prepare] 471,040/628,699  121 img/s  ETA 22 min  aligned 470,654  unreadable 0
+[prepare] 481,280/628,699  121 img/s  ETA 20 min  aligned 480,882  unreadable 0
+[prepare] 491,520/628,699  121 img/s  ETA 19 min  aligned 491,116  unreadable 0
+[prepare] 501,760/628,699  121 img/s  ETA 18 min  aligned 501,335  unreadable 0
+[prepare] 512,000/628,699  121 img/s  ETA 16 min  aligned 511,567  unreadable 0
+[prepare] 522,240/628,699  121 img/s  ETA 15 min  aligned 521,799  unreadable 0
+[prepare] 532,480/628,699  121 img/s  ETA 13 min  aligned 532,026  unreadable 0
+[prepare] 542,720/628,699  121 img/s  ETA 12 min  aligned 542,260  unreadable 0
+[prepare] 552,960/628,699  121 img/s  ETA 10 min  aligned 552,493  unreadable 0
+[prepare] 563,200/628,699  121 img/s  ETA 9 min  aligned 562,728  unreadable 0
+[prepare] 573,440/628,699  121 img/s  ETA 8 min  aligned 572,961  unreadable 0
+[prepare] 583,680/628,699  121 img/s  ETA 6 min  aligned 583,196  unreadable 0
+[prepare] 593,920/628,699  121 img/s  ETA 5 min  aligned 593,429  unreadable 0
+[prepare] 604,160/628,699  121 img/s  ETA 3 min  aligned 603,662  unreadable 0
+[prepare] 614,400/628,699  121 img/s  ETA 2 min  aligned 613,897  unreadable 0
+[prepare] 624,640/628,699  121 img/s  ETA 1 min  aligned 624,126  unreadable 0
+[prepare] 628,699/628,699  121 img/s  ETA 0 min  aligned 628,179  unreadable 0
+[prepare] alignment: 628,179/628,699 (0.08% missed)
+
+  mean cosine similarity        clean     degraded
+    same identity             +0.509      +0.264
+    different identities      +0.006      +0.015
+
+[prepare] wrote artefacts to /home/ubuntu/fedmps/artifacts_vgghq and features to /opt/dlami/nvme/fedmps/vgghq
+[prepare] done in 83.8 min
+exit 0 2026-10-25T12:50:32Z

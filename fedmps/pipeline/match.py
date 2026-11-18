@@ -27,11 +27,13 @@ sub-geometric. Measure it, never assume independence.
 
 from __future__ import annotations
 
+import copy
+
 import time
 from collections import defaultdict, deque
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Deque, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Callable, Deque, Dict, List, Optional, Sequence, Tuple
 
 import cv2
 import numpy as np
@@ -49,6 +51,7 @@ from .detect import Detection, FaceDetector, Track, Tracker, get_detector, get_t
 from .quality import QualityGate
 
 SELECTOR_FILE = "selector.json"
+DEPLOY_ADAPTERS = ("adapter_vgghq_h256.pt", "adapter_final.pt")
 
 
 def log(msg: str) -> None:
@@ -84,8 +87,10 @@ def load_adapter(cfg: Config,
     """The federated adapter from Phase 2/3, if one has been trained."""
     import torch
 
-    path = cfg.paths.checkpoints / "adapter_final.pt"
-    if not path.exists():
+    # The newest trained adapter first: the VGGFace2-HQ run, then the earlier one.
+    path = next((cfg.paths.checkpoints / n for n in DEPLOY_ADAPTERS
+                 if (cfg.paths.checkpoints / n).exists()), None)
+    if path is None:
         log("no trained adapter found; running on raw backbone embeddings.")
         return None
     blob = torch.load(path, map_location=cfg.backbone.device, weights_only=False)
@@ -106,10 +111,17 @@ def load_adapter(cfg: Config,
             f"backbone, or delete the checkpoint to silence this.")
         return None
 
-    model = build_adapter(cfg.adapter, cfg.backbone.device)
+    # Build the adapter the checkpoint was trained as (its hidden size may differ
+    # from the configured default).
+    acfg = copy.deepcopy(cfg.adapter)
+    for k, v in (blob.get("adapter_config") or {}).items():
+        if hasattr(acfg, k):
+            setattr(acfg, k, v)
+    model = build_adapter(acfg, cfg.backbone.device)
     model.load_state_dict(blob["state_dict"])
     model.eval()
-    log(f"loaded the federated adapter (trained on backbone '{trained_on}')")
+    log(f"loaded the federated adapter {path.name} (hidden {acfg.hidden_dim}, "
+        f"trained on backbone '{trained_on}')")
     return model
 
 
@@ -332,13 +344,22 @@ class VideoPipeline:
     def process_video(self, video_path: Path, out_path: Optional[Path] = None,
                       camera: str = "cam-A",
                       max_frames: Optional[int] = None,
-                      fps_cap: Optional[float] = None) -> Dict[str, Any]:
+                      fps_cap: Optional[float] = None,
+                      progress: Optional[Callable[[Dict[str, Any]], None]] = None
+                      ) -> Dict[str, Any]:
+        """Scan one video. `progress`, if given, is called after every
+        processed frame with the frames done so far, the total, the alerts
+        raised and an estimate of the time left, so a console can show a
+        progress bar."""
         cap = cv2.VideoCapture(str(video_path))
         if not cap.isOpened():
             raise FileNotFoundError(f"could not open video: {video_path}")
 
         src_fps = cap.get(cv2.CAP_PROP_FPS) or 25.0
         stride = max(1, int(round(src_fps / max(1, self.cfg.pipeline.sample_fps))))
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
+        if max_frames and total_frames:
+            total_frames = min(total_frames, max_frames * stride)
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
@@ -432,6 +453,20 @@ class VideoPipeline:
 
             if writer is not None:
                 writer.write(self._annotate(bgr, annotations, processed))
+
+            if progress is not None:
+                elapsed = time.time() - t0
+                done = min(frame_idx / total_frames, 1.0) if total_frames else None
+                progress({
+                    "frame": frame_idx, "total_frames": total_frames,
+                    "processed": processed, "fraction": done,
+                    "elapsed_s": round(elapsed, 1),
+                    "eta_s": (round(elapsed / done - elapsed, 1)
+                              if done else None),
+                    "alerts": [{k: a[k] for k in
+                                ("alert_id", "case_id", "track_id", "score")}
+                               for a in alerts],
+                })
 
             if alerts and getattr(self.cfg.pipeline, "stop_on_alert", False):
                 break

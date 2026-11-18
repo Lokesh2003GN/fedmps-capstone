@@ -68,6 +68,14 @@ class EvalSets:
     n_enrol: int = 1
     n_probe_frames: int = 1
 
+    # Which artefact rows each probe was fused from: [M, F], [K', F] and [P].
+    # A model that embeds images itself (the head adapter) re-embeds these
+    # rows and re-fuses them with `with_probe_embeddings`. Extra crowd rows
+    # (CelebA) have no artefact row and sit after the first K' non-mates.
+    mate_rows: Optional[np.ndarray] = None
+    nonmate_rows: Optional[np.ndarray] = None
+    ver_rows: Optional[np.ndarray] = None
+
     def describe(self) -> str:
         return (f"gallery {len(self.gallery_ids)} identities "
                 f"x {self.n_enrol} enrolment photo(s) | "
@@ -75,6 +83,35 @@ class EvalSets:
                 f"x {self.n_probe_frames} frame(s) | "
                 f"{len(self.nonmate_emb)} non-mate probes | "
                 f"{len(self.ver_same)} verification pairs")
+
+    def probe_rows(self) -> np.ndarray:
+        """Every artefact row any probe uses, sorted and unique."""
+        if self.mate_rows is None:
+            raise ValueError("these sets were built without probe rows")
+        return np.unique(np.concatenate([self.mate_rows.ravel(),
+                                         self.nonmate_rows.ravel(),
+                                         self.ver_rows.ravel()]))
+
+    def with_probe_embeddings(self, rows: np.ndarray,
+                              emb: np.ndarray) -> "EvalSets":
+        """The same protocol with every probe re-fused from per-image `emb`.
+
+        `rows` is `probe_rows()` and `emb` the [len(rows), 512] embeddings of
+        those rows. Gallery, identities and pairs are unchanged, so scores
+        stay comparable with every other model evaluated on these sets.
+        """
+        from dataclasses import replace
+
+        def fuse(r: np.ndarray) -> np.ndarray:
+            e = emb[np.searchsorted(rows, r)]
+            return l2_normalise(e.mean(axis=1).astype(np.float32))
+
+        k = self.nonmate_rows.shape[0]
+        nonmate = np.concatenate([fuse(self.nonmate_rows), self.nonmate_emb[k:]])
+        return replace(self,
+                       mate_emb=fuse(self.mate_rows),
+                       nonmate_emb=nonmate,
+                       ver_degraded=emb[np.searchsorted(rows, self.ver_rows)])
 
 
 def build_eval_sets(art: Artefacts, cfg: Config,
@@ -141,6 +178,7 @@ def build_eval_sets(art: Artefacts, cfg: Config,
     mate_vecs: List[np.ndarray] = []
     mate_id_list: List[int] = []
     mate_prof_list: List[int] = []
+    mate_row_list: List[np.ndarray] = []
     nonmate_rows: List[int] = []
     skipped = 0
 
@@ -164,6 +202,7 @@ def build_eval_sets(art: Artefacts, cfg: Config,
             mate_vecs.append(probe_emb[track].mean(axis=0))
             mate_id_list.append(int(ident))
             mate_prof_list.append(prof_of[int(track[0])])
+            mate_row_list.append(track)
 
     for ident in sorted(imp_ids):
         nonmate_rows.extend(int(r) for r in test_idx[labels[test_idx] == ident])
@@ -189,12 +228,14 @@ def build_eval_sets(art: Artefacts, cfg: Config,
     # one person, exactly as a fused mate is.
     nm_vecs: List[np.ndarray] = []
     nm_prof: List[int] = []
+    nm_row_list: List[np.ndarray] = []
     for ident in sorted(imp_ids):
         rows = test_idx[labels[test_idx] == ident]
         for s in range(0, rows.size - n_probe_frames + 1, n_probe_frames):
             track = rows[s:s + n_probe_frames]
             nm_vecs.append(probe_emb[track].mean(axis=0))
             nm_prof.append(prof_of[int(track[0])])
+            nm_row_list.append(track)
 
     extra = art.emb_nonmate
     if extra is not None and extra.shape[0]:
@@ -221,7 +262,7 @@ def build_eval_sets(art: Artefacts, cfg: Config,
     k_emb = l2_normalise(np.asarray(nm_vecs, dtype=np.float32))
     k_prof = np.asarray(nm_prof, dtype=np.int32)
 
-    ver_clean, ver_deg, ver_same = _sample_verification_pairs(
+    ver_clean, ver_deg, ver_same, ver_rows = _sample_verification_pairs(
         art, test_idx, rng, cfg.eval.n_verification_pairs, probe_emb)
 
     return EvalSets(
@@ -237,6 +278,10 @@ def build_eval_sets(art: Artefacts, cfg: Config,
         ver_same=ver_same,
         n_enrol=n_enrol,
         n_probe_frames=n_probe_frames,
+        mate_rows=np.asarray(mate_row_list, dtype=np.int64),
+        nonmate_rows=(np.asarray(nm_row_list, dtype=np.int64) if nm_row_list
+                      else np.zeros((0, n_probe_frames), dtype=np.int64)),
+        ver_rows=ver_rows,
     )
 
 
@@ -244,12 +289,15 @@ def _sample_verification_pairs(art: Artefacts, test_idx: np.ndarray,
                                rng: np.random.Generator,
                                n_pairs: int,
                                probe_emb: Optional[np.ndarray] = None
-                               ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+                               ) -> Tuple[np.ndarray, np.ndarray, np.ndarray,
+                                          np.ndarray]:
     """Clean-vs-degraded pairs, half genuine and half impostor.
 
     This mirrors the deployment comparison (enrolment photo against camera
     frame) rather than the clean-vs-clean pairing LFW normally uses, so the
     number is comparable in form but harder in substance. Say so in the report.
+
+    Returns (clean side, degraded side, same-person flags, degraded-side rows).
     """
     labels = art.labels
     probe_emb = art.emb_deg if probe_emb is None else probe_emb
@@ -261,7 +309,7 @@ def _sample_verification_pairs(art: Artefacts, test_idx: np.ndarray,
     ids = sorted(by_id)
     if len(ids) < 2:
         empty = np.zeros((0, art.emb_clean.shape[1]), dtype=np.float32)
-        return empty, empty, np.zeros(0, dtype=bool)
+        return empty, empty, np.zeros(0, dtype=bool), np.zeros(0, dtype=np.int64)
 
     half = max(1, n_pairs // 2)
     a_rows: List[int] = []
@@ -283,9 +331,9 @@ def _sample_verification_pairs(art: Artefacts, test_idx: np.ndarray,
         b_rows.append(r2)
         same.append(False)
 
-    return (art.emb_clean[np.asarray(a_rows)],
-            probe_emb[np.asarray(b_rows)],
-            np.asarray(same, dtype=bool))
+    b = np.asarray(b_rows, dtype=np.int64)
+    return (art.emb_clean[np.asarray(a_rows)], probe_emb[b],
+            np.asarray(same, dtype=bool), b)
 
 
 # --------------------------------------------------------------------------

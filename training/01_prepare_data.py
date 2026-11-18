@@ -119,6 +119,123 @@ def mean_cross_identity_similarity(emb: np.ndarray, labels: np.ndarray,
     return float(np.mean(sims)) if sims else float("nan")
 
 
+def run_stream(args, cfg) -> int:
+    """Streaming preparation for a folder too large to hold in memory.
+
+    Same steps and same per-image seeds as the in-memory path (align once,
+    degrade with the owning node's camera, embed clean and degraded), done in
+    chunks so any number of images fits.
+    """
+    from fedmps.data.stream_folder import (
+        build_folder_index, find_identity_roots, stream_embed_folder,
+    )
+
+    t0 = time.time()
+    root = args.folder or cfg.data.folder_path
+    if root is None:
+        log("--stream needs --folder")
+        return 1
+    roots = find_identity_roots(Path(root))
+    if args.root_filter:
+        roots = [r for r in roots if any(f in str(r) for f in args.root_filter)]
+    if not roots:
+        log(f"no folder of identity sub-folders found under {root}")
+        return 1
+    log("identity roots: " + ", ".join(str(r) for r in roots))
+
+    per_id = args.max_images_per_identity or None      # 0 / unset = every image
+    max_ids = args.max_identities or None              # unset = every identity
+    index = build_folder_index(roots, per_id, cfg.data.folder_min_images_per_person,
+                               cfg.seed, max_ids)
+    log(f"{index.n} images, {len(index.names)} identities "
+        f"({index.n / len(index.names):.0f} per identity on average)")
+
+    log(f"partitioning across {cfg.partition.n_nodes} nodes")
+    print(cfg.partition.summary())
+    partition = build_partition(index.labels, cfg)
+    print(describe_partition(partition))
+    profile_ids = profile_for_each_image(partition, index.n)
+
+    cfg.backbone.align = False       # the streamer aligns once, up front
+    if args.det_size:
+        cfg.backbone.det_size = args.det_size
+    precision = "fp32"
+    if args.embed_fp16 and cfg.backbone.preference[:1] == ["insightface"]:
+        from fedmps.data.stream_folder import ensure_fp16_onnx
+        cfg.backbone.insightface_onnx = ensure_fp16_onnx(cfg)
+        precision = "fp16"
+    backbone = get_backbone(cfg)
+    use_det = cfg.backbone.preference[:1] == ["insightface"]
+    a = cfg.paths.artifacts
+    a.mkdir(parents=True, exist_ok=True)
+
+    report = stream_embed_folder(
+        index, profile_ids, partition, cfg, backbone, a,
+        chunk=args.chunk, workers=args.workers, embed_batch=args.embed_batch,
+        use_detector=use_det, resume=not args.no_resume,
+        max_chunks=args.max_chunks)
+    log(f"stream report: {report}")
+    if not report["complete"]:
+        log("stopped early (--max-chunks); artefacts are incomplete, "
+            "meta.json not written")
+        return 0
+    if report["miss_rate"] > cfg.backbone.max_align_miss_rate:
+        log(f"ABORT: the detector missed {100 * report['miss_rate']:.1f}% of "
+            f"faces, over the {100 * cfg.backbone.max_align_miss_rate:.1f}% limit")
+        return 2
+
+    emb_clean = np.load(a / F_EMB_CLEAN, mmap_mode="r")
+    emb_deg = np.load(a / F_EMB_DEG, mmap_mode="r")
+    assert_aligned(emb_clean, emb_deg, index.labels,
+                   names=["embeddings_clean", "embeddings_deg", "labels"])
+    sample = np.sort(np.random.default_rng(cfg.seed).choice(
+        index.n, size=min(20000, index.n), replace=False))
+    assert_embeddings(np.asarray(emb_clean[sample]), "embeddings_clean (sample)")
+    assert_embeddings(np.asarray(emb_deg[sample]), "embeddings_deg (sample)")
+
+    rng = np.random.default_rng(cfg.seed)
+    same_clean = mean_same_identity_similarity(emb_clean, index.labels, rng)
+    same_deg = mean_same_identity_similarity(emb_deg, index.labels, rng)
+    cross_clean = mean_cross_identity_similarity(emb_clean, index.labels, rng)
+    cross_deg = mean_cross_identity_similarity(emb_deg, index.labels, rng)
+    print()
+    print("  mean cosine similarity        clean     degraded")
+    print(f"    same identity            {same_clean:+7.3f}     {same_deg:+7.3f}")
+    print(f"    different identities     {cross_clean:+7.3f}     {cross_deg:+7.3f}")
+    print()
+
+    save_npy(a / F_LABELS, index.labels)
+    save_json(a / F_PARTITION, partition)
+    save_json(a / F_IDENTITY_NAMES, index.names)
+    meta = {
+        "created_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "backbone": backbone.name,
+        "backbone_is_synthetic": backbone.name == "dummy",
+        "n_images": int(index.n),
+        "n_identities": int(len(index.names)),
+        "image_size": report["out_size"],
+        "elapsed_sec": round(time.time() - t0, 1),
+        "celeba_nonmates": {"used": False},
+        "nonmate_profiles": [],
+        "alignment": report,
+        "stream": {"roots": index.roots, "chunk": args.chunk,
+                   "images_per_identity_cap": per_id,
+                   "embedding_precision": precision,
+                   "backbone_onnx": cfg.backbone.insightface_onnx},
+        "health": {
+            "same_identity_clean": same_clean,
+            "same_identity_degraded": same_deg,
+            "cross_identity_clean": cross_clean,
+            "cross_identity_degraded": cross_deg,
+        },
+        "config": cfg.to_dict(),
+    }
+    save_json(a / F_META, meta)
+    log(f"wrote artefacts to {a}")
+    log(f"done in {meta['elapsed_sec']}s")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="FedMPS Phase 1 data preparation")
     ap.add_argument("--source", choices=["lfw", "folder", "celeba"],
@@ -153,6 +270,30 @@ def main() -> int:
                     help="suffix for the artifacts directory, e.g. "
                          "--out-suffix _noalign writes artifacts_noalign/ so "
                          "two runs can be compared side by side")
+    ap.add_argument("--stream", action="store_true",
+                    help="stream a very large folder through align -> degrade "
+                         "-> embed in chunks instead of loading it into "
+                         "memory. With --folder; --max-identities and "
+                         "--max-images-per-identity unset (or 0) mean no cap")
+    ap.add_argument("--chunk", type=int, default=2048,
+                    help="--stream: images per chunk")
+    ap.add_argument("--workers", type=int, default=8,
+                    help="--stream: threads for decoding and degrading")
+    ap.add_argument("--embed-batch", type=int, default=256,
+                    help="--stream: images per backbone batch")
+    ap.add_argument("--root-filter", nargs="*", default=None,
+                    help="--stream: keep only identity roots whose path "
+                         "contains one of these strings, e.g. train")
+    ap.add_argument("--det-size", type=int, default=None,
+                    help="--stream: SCRFD input size. 160 matches the 160 px "
+                         "working images and is about 1.5 times faster than 320")
+    ap.add_argument("--embed-fp16", action="store_true",
+                    help="--stream: embed with a float16 copy of ArcFace "
+                         "(2.1x faster on a T4; cosine to float32 >= 0.9999)")
+    ap.add_argument("--no-resume", action="store_true",
+                    help="--stream: start over instead of resuming")
+    ap.add_argument("--max-chunks", type=int, default=None,
+                    help="--stream: stop after this many chunks, to time a run")
     ap.add_argument("--repair-cache", action="store_true",
                     help="delete the LFW cache and download it again; use "
                          "this after an interrupted download")
@@ -187,6 +328,9 @@ def main() -> int:
         cfg.data.celeba_zip = args.celeba_zip
     if args.celeba_identities:
         cfg.data.celeba_identity_file = args.celeba_identities
+
+    if args.stream:
+        return run_stream(args, cfg)
 
     if args.repair_cache:
         import shutil

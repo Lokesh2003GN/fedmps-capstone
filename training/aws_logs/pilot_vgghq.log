@@ -1,0 +1,52 @@
+pilot start 2026-10-25T12:50:48Z
+[pilot] pilot validation: 321 identities, 42898 images, all from the training 70%
+[pilot] gallery 160 identities x 3 enrolment photo(s) | 7044 mate probes x 3 frame(s) | 6992 non-mate probes | 60000 verification pairs
+[pilot] frozen: {'rank1': 0.9863713798977853, 'tpir@fpir=0.01': 0.9298693923906871, 'tpir@fpir=0.001': 0.8835888699602499, 'tar@far=0.001': 0.7235666666666667, 'eer': 0.11129999999999998}
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   5/30  rank1=0.9859  val_rank1=nan  sim_gain=+0.0134  |delta|=0.0367
+[fl]   round  10/30  rank1=0.9862  val_rank1=nan  sim_gain=+0.0143  |delta|=0.0289
+[fl]   round  15/30  rank1=0.9862  val_rank1=nan  sim_gain=+0.0144  |delta|=0.0227
+[fl]   round  20/30  rank1=0.9862  val_rank1=nan  sim_gain=+0.0173  |delta|=0.0159
+[fl]   round  25/30  rank1=0.9865  val_rank1=nan  sim_gain=+0.0152  |delta|=0.0086
+[fl]   round  30/30  rank1=0.9865  val_rank1=nan  sim_gain=+0.0123  |delta|=0.0020
+[fl] federated: rank1=0.9865  tpir@fpir=0.0001=nan  tpir@fpir=0.001=0.8863  tpir@fpir=0.01=0.9371  tpir@fpir=0.1=0.9708  ver_auc=0.9447
+[pilot] mlp_h64_mu3: rank1 0.9865 (+0.0001)  tpir@1% 0.9371 (+0.0072)  307s
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   5/30  rank1=0.9868  val_rank1=nan  sim_gain=+0.0218  |delta|=0.1274
+[fl]   round  10/30  rank1=0.9865  val_rank1=nan  sim_gain=+0.0194  |delta|=0.1092
+[fl]   round  15/30  rank1=0.9859  val_rank1=nan  sim_gain=+0.0175  |delta|=0.0859
+[fl]   round  20/30  rank1=0.9859  val_rank1=nan  sim_gain=+0.0252  |delta|=0.0594
+[fl]   round  25/30  rank1=0.9859  val_rank1=nan  sim_gain=+0.0178  |delta|=0.0337
+[fl]   round  30/30  rank1=0.9862  val_rank1=nan  sim_gain=+0.0102  |delta|=0.0028
+[fl] federated: rank1=0.9862  tpir@fpir=0.0001=nan  tpir@fpir=0.001=0.8857  tpir@fpir=0.01=0.9390  tpir@fpir=0.1=0.9723  ver_auc=0.9459
+[pilot] mlp_h256_mu03: rank1 0.9862 (-0.0001)  tpir@1% 0.9390 (+0.0091)  275s
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl] evaluation features on the GPU: 42730 images, 2.1 GB
+[fl]   round   5/30  rank1=0.9867  val_rank1=nan  sim_gain=+0.0046  |delta|=0.0164
+[fl]   round  10/30  rank1=0.9865  val_rank1=nan  sim_gain=+0.0057  |delta|=0.0114
+[fl]   round  15/30  rank1=0.9862  val_rank1=nan  sim_gain=+0.0061  |delta|=0.0082
+[fl]   round  20/30  rank1=0.9861  val_rank1=nan  sim_gain=+0.0063  |delta|=0.0058
+[fl]   round  25/30  rank1=0.9861  val_rank1=nan  sim_gain=+0.0062  |delta|=0.0033
+[fl]   round  30/30  rank1=0.9861  val_rank1=nan  sim_gain=+0.0063  |delta|=0.0010
+[fl] federated: rank1=0.9861  tpir@fpir=0.0001=nan  tpir@fpir=0.001=0.8864  tpir@fpir=0.01=0.9327  tpir@fpir=0.1=0.9703  ver_auc=0.9447
+[pilot] head_r16_mu3: rank1 0.9861 (-0.0003)  tpir@1% 0.9327 (+0.0028)  193s
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   5/30  rank1=0.9859  val_rank1=nan  sim_gain=+0.0094  |delta|=0.0779
+[fl]   round  10/30  rank1=0.9857  val_rank1=nan  sim_gain=+0.0109  |delta|=0.0724
+[fl]   round  15/30  rank1=0.9848  val_rank1=nan  sim_gain=+0.0126  |delta|=0.0516
+[fl]   round  20/30  rank1=0.9848  val_rank1=nan  sim_gain=+0.0130  |delta|=0.0437
+[fl]   round  25/30  rank1=0.9848  val_rank1=nan  sim_gain=+0.0135  |delta|=0.0326
+[fl]   round  30/30  rank1=0.9848  val_rank1=nan  sim_gain=+0.0134  |delta|=0.0027
+[fl] federated: rank1=0.9848  tpir@fpir=0.0001=nan  tpir@fpir=0.001=0.8888  tpir@fpir=0.01=0.9354  tpir@fpir=0.1=0.9696  ver_auc=0.9454
+[pilot] head_r16_mu03: rank1 0.9848 (-0.0016)  tpir@1% 0.9354 (+0.0055)  139s
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   5/30  rank1=0.9859  val_rank1=nan  sim_gain=+0.0102  |delta|=0.1017
+[fl]   round  10/30  rank1=0.9852  val_rank1=nan  sim_gain=+0.0127  |delta|=0.0835
+[fl]   round  15/30  rank1=0.9848  val_rank1=nan  sim_gain=+0.0131  |delta|=0.0754
+[fl]   round  20/30  rank1=0.9848  val_rank1=nan  sim_gain=+0.0144  |delta|=0.0660
+[fl]   round  25/30  rank1=0.9850  val_rank1=nan  sim_gain=+0.0144  |delta|=0.0464
+[fl]   round  30/30  rank1=0.9842  val_rank1=nan  sim_gain=+0.0142  |delta|=0.0056
+[fl] federated: rank1=0.9842  tpir@fpir=0.0001=nan  tpir@fpir=0.001=0.8911  tpir@fpir=0.01=0.9363  tpir@fpir=0.1=0.9705  ver_auc=0.9454
+[pilot] head_r16_mu03_lr3e-4: rank1 0.9842 (-0.0021)  tpir@1% 0.9363 (+0.0064)  130s
+[pilot] wrote results/pilot_vgghq.json
+exit 0 2026-10-25T13:09:45Z

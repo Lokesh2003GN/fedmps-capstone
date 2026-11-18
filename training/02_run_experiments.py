@@ -44,9 +44,42 @@ def main() -> int:
     ap.add_argument("--quick", action="store_true",
                     help="short run for checking the pipeline works")
     ap.add_argument("--rounds", type=int, default=None)
+    ap.add_argument("--aux-rounds", type=int, default=None,
+                    help="rounds for the side experiments (DP sweep, masking, "
+                         "FedProx, membership inference); the three-way "
+                         "comparison keeps --rounds")
     ap.add_argument("--nodes-per-round", type=int, default=None)
     ap.add_argument("--seed", type=int, default=None)
     ap.add_argument("--no-figures", action="store_true")
+    ap.add_argument("--device", choices=["cpu", "cuda"], default=None,
+                    help="where the adapter trains. cuda keeps the node data "
+                         "on the GPU, which millions of images need")
+    ap.add_argument("--fp16-store", action="store_true",
+                    help="keep node training embeddings in float16 on the "
+                         "device (half the memory; batches are cast back)")
+    ap.add_argument("--batch-size", type=int, default=None)
+    ap.add_argument("--eval-every", type=int, default=None,
+                    help="score the held-out 30%% every N rounds")
+    ap.add_argument("--lr", type=float, default=None)
+    ap.add_argument("--lr-schedule", choices=["cosine", "constant"],
+                    default=None)
+    ap.add_argument("--mu", type=float, default=None,
+                    help="FedProx proximal weight; 0 is plain FedAvg")
+    ap.add_argument("--hidden", type=int, default=None,
+                    help="adapter hidden width (64 gives 66,240 parameters)")
+    ap.add_argument("--adapter-kind", choices=["mlp", "head"], default=None,
+                    help="mlp: the residual MLP on the output embedding. head: "
+                         "the backbone's last BatchNorm and a low-rank update "
+                         "of its last layer, on features from "
+                         "01b_prepare_stream.py")
+    ap.add_argument("--lora-rank", type=int, default=None)
+    ap.add_argument("--epoch-frac", type=float, default=None,
+                    help="fraction of each node's data passed over per round")
+    ap.add_argument("--val-identity-frac", type=float, default=None,
+                    help="fraction of each node's identities held back from "
+                         "training as a validation set; 0 trains on all of "
+                         "them. Used by hyper-parameter sweeps, so the "
+                         "held-out 30%% is never used to choose settings")
     ap.add_argument("--out", default="experiments.json")
     ap.add_argument("--artifacts-suffix", default="",
                     help="read from artifacts<SUFFIX>/ instead of artifacts/, "
@@ -66,12 +99,38 @@ def main() -> int:
         cfg.fl.rounds = args.rounds
     if args.nodes_per_round:
         cfg.fl.clients_per_round = args.nodes_per_round
+    if args.device:
+        cfg.backbone.device = args.device
+    if args.fp16_store:
+        cfg.train.store_fp16 = True
+    if args.batch_size:
+        cfg.train.batch_size = args.batch_size
+    if args.eval_every:
+        cfg.eval.eval_every = args.eval_every
+    if args.lr is not None:
+        cfg.train.lr = args.lr
+    if args.lr_schedule:
+        cfg.train.lr_schedule = args.lr_schedule
+    if args.mu is not None:
+        cfg.fl.fedprox_mu = args.mu
+    if args.hidden:
+        cfg.adapter.hidden_dim = args.hidden
+    if args.adapter_kind:
+        cfg.adapter.kind = args.adapter_kind
+    if args.lora_rank:
+        cfg.adapter.lora_rank = args.lora_rank
+        cfg.adapter.lora_alpha = float(args.lora_rank)
+    if args.epoch_frac is not None:
+        cfg.train.local_epoch_frac = args.epoch_frac
+    if args.val_identity_frac is not None:
+        cfg.fl.val_identity_frac = args.val_identity_frac
+        cfg.fl.early_stop = args.val_identity_frac > 0
 
     which = (tuple(args.only) if args.only
              else ALL_EXPERIMENTS if args.all
              else DEFAULT_EXPERIMENTS)
 
-    rounds_override = None
+    rounds_override = args.aux_rounds
     if args.quick:
         cfg.fl.rounds = min(cfg.fl.rounds, 8)
         cfg.train.centralised_epochs = min(cfg.train.centralised_epochs, 15)
@@ -95,7 +154,8 @@ def main() -> int:
     log(f"experiments: {', '.join(which)}")
     results = run_all(art, cfg, which=which,
                       rounds_override=rounds_override,
-                      figures=not args.no_figures)
+                      figures=not args.no_figures,
+                      save_to=cfg.paths.results / args.out)
 
     out_path = cfg.paths.results / args.out
     save_json(out_path, results)

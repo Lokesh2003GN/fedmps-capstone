@@ -250,6 +250,22 @@ class Artefacts:
     def node(self, k: int) -> Dict[str, Any]:
         return self.partition["nodes"][f"node_{k}"]
 
+    @property
+    def feat_deg(self) -> Optional[np.ndarray]:
+        """Layer-4 features of every degraded crop, [N, 25088] float16, or None.
+
+        Written by training/01b_prepare_stream.py to the path in
+        meta["features"], and opened memory-mapped, since it is tens of GB.
+        """
+        if not hasattr(self, "_feat_deg"):
+            path = (self.meta.get("features") or {}).get("path")
+            self._feat_deg = (np.load(path, mmap_mode="r")
+                              if path and Path(path).exists() else None)
+            if self._feat_deg is not None and self._feat_deg.shape[0] != self.n:
+                _fail(f"features have {self._feat_deg.shape[0]} rows but there "
+                      f"are {self.n} images")
+        return self._feat_deg
+
     @classmethod
     def load(cls, cfg) -> "Artefacts":
         a = cfg.paths.artifacts

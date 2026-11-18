@@ -32,7 +32,9 @@ from ..eval.metrics import (
     EvalSets, build_eval_sets, evaluate, fit_calibrator, headline,
 )
 from ..models.adapter import Adapter, build_adapter, clone_state
-from .node import Node, build_nodes, local_eval, local_train, make_node_data
+from .node import (
+    Node, build_nodes, local_eval, local_train, make_node_data, uses_features,
+)
 from .server import Server
 
 
@@ -44,6 +46,50 @@ def _transform_of(model: Adapter):
     """Wrap a trained adapter as the probe transform evaluation expects."""
     model.eval()
     return lambda emb: model.transform_numpy(emb)
+
+
+# The head adapter re-embeds every probe image from its layer-4 features at
+# each evaluation. Those features (about 50 KB per image) are kept on the GPU
+# for the one set of evaluation sets in use, when they fit, so a per-round
+# score is a few matrix products rather than a pass over the disk.
+_PROBE_CACHE: Dict[str, Any] = {}
+
+
+def _probe_features(art: Artefacts, sets: EvalSets
+                    ) -> Tuple[np.ndarray, Optional[torch.Tensor]]:
+    if _PROBE_CACHE.get("sets") is not sets:
+        _PROBE_CACHE.clear()
+        rows = sets.probe_rows()
+        cache = None
+        need = rows.size * art.feat_deg.shape[1] * 2
+        if torch.cuda.is_available() and need < 0.7 * torch.cuda.get_device_properties(0).total_memory:
+            cache = torch.empty((rows.size, art.feat_deg.shape[1]),
+                                dtype=torch.float16, device="cuda")
+            for i in range(0, rows.size, 16384):
+                cache[i:i + 16384] = torch.from_numpy(
+                    np.asarray(art.feat_deg[rows[i:i + 16384]])).to("cuda")
+            log(f"evaluation features on the GPU: {rows.size} images, "
+                f"{need / 1e9:.1f} GB")
+        _PROBE_CACHE.update(sets=sets, rows=rows, cache=cache)
+    return _PROBE_CACHE["rows"], _PROBE_CACHE["cache"]
+
+
+def evaluate_model(art: Artefacts, sets: EvalSets, cfg: Config, model,
+                   calibrator: Optional[Calibrator] = None,
+                   per_camera: bool = False) -> Dict[str, Any]:
+    """Score a trained module on `sets`, whichever kind it is.
+
+    The MLP transforms the fused probe embeddings directly. The head works on
+    images, so every probe image is re-embedded and the probes are fused again
+    from those embeddings, exactly as the frozen backbone's were.
+    """
+    if getattr(model, "kind", "mlp") != "head":
+        return evaluate(sets, cfg, transform=_transform_of(model),
+                        per_camera=per_camera, calibrator=calibrator)
+    rows, cache = _probe_features(art, sets)
+    emb = model.embed_rows(art.feat_deg, rows, cache=cache)
+    return evaluate(sets.with_probe_embeddings(rows, emb), cfg, transform=None,
+                    per_camera=per_camera, calibrator=calibrator)
 
 
 # --------------------------------------------------------------------------
@@ -136,6 +182,9 @@ def _val_rank1(sets: Optional[EvalSets], model: Adapter,
     """Closed-set rank-1 on the held-back identities. No non-mates needed."""
     if sets is None:
         return float("nan")
+    if getattr(model, "kind", "mlp") == "head":
+        raise ValueError("early stopping on node identities is not implemented "
+                         "for the head adapter; run it with val_identity_frac 0")
     probes = model.transform_numpy(sets.mate_emb)
     gallery = sets.gallery_emb
     if calibrator is not None:
@@ -184,8 +233,10 @@ def run_centralised(art: Artefacts, cfg: Config,
 
     pooled = Node(
         node_id=0,
-        train_data=make_node_data(art, rows, cfg.backbone.device),
-        val_data=make_node_data(art, val_rows, cfg.backbone.device),
+        train_data=make_node_data(art, rows, cfg.backbone.device,
+                                  cfg.train.store_fp16, uses_features(cfg)),
+        val_data=make_node_data(art, val_rows, cfg.backbone.device,
+                                cfg.train.store_fp16, uses_features(cfg)),
         cfg=cfg,
     )
     log(f"centralised: {pooled.train_data.n} images, "
@@ -231,16 +282,17 @@ def run_local_only(art: Artefacts, cfg: Config,
     node_train, _node_val = split_node_identities(art, cfg)
     for k in range(art.n_nodes):
         entry = art.node(k)
-        data = make_node_data(art, node_train[k], cfg.backbone.device)
-        val = make_node_data(art, entry["val_idx"], cfg.backbone.device)
+        data = make_node_data(art, node_train[k], cfg.backbone.device,
+                              cfg.train.store_fp16, uses_features(cfg))
+        val = make_node_data(art, entry["val_idx"], cfg.backbone.device,
+                             cfg.train.store_fp16, uses_features(cfg))
 
         model = build_adapter(cfg.adapter, cfg.backbone.device)
         stats = local_train(model, data, cfg, epochs=epochs,
                             seed=cfg.seed + k)
         val_stats = local_eval(model, val, cfg)
 
-        res = evaluate(sets, cfg, transform=_transform_of(model),
-                       calibrator=calibrator)
+        res = evaluate_model(art, sets, cfg, model, calibrator)
         res["train"] = stats
         res["val"] = val_stats
         res.pop("per_camera", None)
@@ -344,8 +396,7 @@ def run_federated(art: Artefacts, cfg: Config,
 
         is_last = (r == cfg.fl.rounds - 1)
         if is_last or (r + 1) % max(1, cfg.eval.eval_every) == 0:
-            res = evaluate(sets, cfg, transform=_transform_of(model),
-                           calibrator=calibrator)
+            res = evaluate_model(art, sets, cfg, model, calibrator)
             entry["eval"] = {
                 "rank1": res["identification"]["rank1"],
                 **{k: v for k, v in res["identification"].items()
@@ -369,8 +420,7 @@ def run_federated(art: Artefacts, cfg: Config,
         selected = best_round
 
     model = server.load_into_model()
-    result = evaluate(sets, cfg, transform=_transform_of(model),
-                      per_camera=True, calibrator=calibrator)
+    result = evaluate_model(art, sets, cfg, model, calibrator, per_camera=True)
     result["history"] = history
     result["payload"] = server.payload_report()
     result["privacy"] = server.privacy_report(rounds=cfg.fl.rounds)
@@ -502,7 +552,10 @@ def run_three_way(art: Artefacts, cfg: Config,
         "config": cfg.to_dict(),
     }
 
-    ckpt = cfg.paths.checkpoints / F_ADAPTER
+    # The head gets its own file, so a head run never replaces the MLP
+    # adapter the application loads.
+    ckpt = cfg.paths.checkpoints / ("head_final.pt" if uses_features(cfg)
+                                    else F_ADAPTER)
     ckpt.parent.mkdir(parents=True, exist_ok=True)
     torch.save({"state_dict": fed_state,
                 "adapter_config": cfg.adapter.__dict__,

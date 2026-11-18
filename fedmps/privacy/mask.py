@@ -203,7 +203,7 @@ class SecureAggregator:
         masked_examples: List[np.ndarray] = []
 
         for update, w, node in zip(updates, weights, ids):
-            weighted = state_to_vector(update).double().numpy() * float(w)
+            weighted = state_to_vector(update).double().cpu().numpy() * float(w)
             masked = weighted + self.node_mask(node, participants, round_idx, size)
             masked_sum += masked
             if len(masked_examples) < 2:
@@ -238,7 +238,7 @@ class SecureAggregator:
         A screenshot of this is worth a paragraph of prose about secure
         aggregation: the masked row is what the server actually receives.
         """
-        vec = state_to_vector(update).double().numpy()
+        vec = state_to_vector(update).double().cpu().numpy()
         masked = vec + self.node_mask(node, participants, round_idx, vec.size)
         return {
             "node": node,

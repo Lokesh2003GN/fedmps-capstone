@@ -81,7 +81,7 @@ def add_gaussian_noise(update: StateDict, std: float,
     for k, v in update.items():
         noise = torch.normal(mean=0.0, std=std, size=v.shape,
                              generator=generator, dtype=torch.float32)
-        out[k] = v + noise.to(v.dtype)
+        out[k] = v + noise.to(device=v.device, dtype=v.dtype)
     return out
 
 

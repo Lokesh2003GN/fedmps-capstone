@@ -24,9 +24,11 @@ Markdown subset understood here:
     ```                                code block
     !code[path/to/file.py](Name)       code block with the real source of a
                                        function, class or Class.method
-    $$ text $$                         centred display line (equations)
-    {fig:id} {tab:id}                  cross-reference -> "Figure 3" / "Table 2.1"
-    [@key] or [@a, @b]                 citation -> [n]; numbered by first use
+    $$ text $$ {#eq:id}                numbered equation, "(2.1)" at the right margin
+    {fig:id} {tab:id} {eq:id}          cross-reference -> "Figure 3" / "Table 2.1" /
+                                       "Equation 2.1"
+    [@key] or [@a, @b]                 citation -> [n]; numbered by first use, and
+                                       consecutive numbers joined: [1-3],[5]
     **bold**  *italic*  `code`         inline formatting
 
 Page numbers in the table of contents and the lists of tables and figures
@@ -56,8 +58,9 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import docx
+from docx.enum.section import WD_ORIENT, WD_SECTION
 from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING, WD_TAB_ALIGNMENT
 from docx.opc.constants import RELATIONSHIP_TYPE as RT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
@@ -70,13 +73,45 @@ CONTENT = HERE / "content"
 OUT_DOCX = ROOT / "docs" / "FedMPS_Capstone_Thesis.docx"
 OUT_PDF = OUT_DOCX.with_suffix(".pdf")
 LOGO = HERE / "assets" / "vitap_logo.jpeg"
+# Per-document style, from "style" in the content folder's meta.json:
+#   equations      "chapter" -> "(2.1)";  "section" -> "Eqn 2.2.1" (chapter.section.n)
+#   table_align    "auto" -> numbers centred;  "left" -> every body cell left-aligned
+#   references     "chapter" -> listed as the last chapter;  "unnumbered" -> no number
+#   abbreviations  file of "ABBR: Full Form" lines; the first use in running text
+#                  is written out as "Full Form (ABBR)", every later use stays short
+#   lint           true -> warn about the writing rules of the v2 document
+STYLE: Dict[str, object] = {}
 
 BODY_FONT = "Times New Roman"
 CODE_FONT = "Consolas"
 TEXT_WIDTH_IN = 6.3          # usable width with the margins set below
+LANDSCAPE_WIDTH_IN = 8.9     # usable width of a landscape page, same margins
 PLACEHOLDER = "00"
-# Cells that hold a number (or a dash) are centred in tables.
+# Cells that hold a number (or a dash) are centred in tables; text is left-aligned.
 NUMERIC = re.compile(r"^([+\-−]?[\d.,]+\s*(%|×|x|s|min|MB|GB|KB)?(\s*±\s*[\d.]+)?|—|-|n/a)$")
+_UNITS = re.compile(r"\b(min|s|h|ms|MB|GB|KB|bytes?|px|fps|of|vs|M|k|x|bits?|rounds?|"
+                    r"frames?|people|images|identities|faces|per|million|"
+                    r"Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b|US\$")
+
+
+def is_numeric(cell: str) -> bool:
+    """A number, possibly with units, ranges, ± or a ratio such as '1,988 of 2,088'."""
+    c = cell.strip("* ").strip()
+    if NUMERIC.match(c) or c in ("∞", "—", "-", "n/a", ""):
+        return bool(c)
+    if not re.search(r"\d", c):
+        return False
+    rest = _UNITS.sub("", c)
+    return not re.sub(r"[\d\s.,+\-−–±%×/:≈~<>=$₹⁰¹²³⁴⁵⁶⁷⁸⁹⁻·@]", "", rest)
+
+
+def capitalise(cell: str) -> str:
+    """Start a text cell with a capital letter (code, symbols and roman page numbers
+    are left alone)."""
+    if re.fullmatch(r"[ivxlc]+(<br>[ivxlc0-9]+)*", cell):
+        return cell
+    m = re.match(r"^(\*{0,2})([a-z])", cell)
+    return cell if not m else m.group(1) + m.group(2).upper() + cell[m.end():]
 
 
 def log(msg: str) -> None:
@@ -96,6 +131,7 @@ class Block:
     rows: List[List[str]] = field(default_factory=list)
     path: str = ""
     width: float = 6.0
+    landscape: bool = False   # figure on its own landscape page
     label: str = ""
     number: str = ""          # filled in by numbering
 
@@ -134,14 +170,16 @@ FIG_RE = re.compile(r"^!\[(?P<cap>.*?)\]\((?P<path>[^)]+)\)(?:\{(?P<opts>[^}]*)\
 TAB_RE = re.compile(r"^Table:\s*(?P<cap>.*?)\s*(?:\{#(?P<label>[\w:.-]+)\})?\s*$")
 
 
-def parse_opts(opts: Optional[str]) -> Tuple[str, float]:
-    label, width = "", 6.0
+def parse_opts(opts: Optional[str]) -> Tuple[str, float, bool]:
+    label, width, landscape = "", 6.0, False
     for tok in (opts or "").split():
         if tok.startswith("#"):
             label = tok[1:]
         elif tok.startswith("w="):
             width = float(tok[2:])
-    return label, width
+        elif tok == "landscape":
+            landscape = True
+    return label, width, landscape
 
 
 def parse_markdown(text: str) -> List[Block]:
@@ -199,9 +237,9 @@ def parse_markdown(text: str) -> List[Block]:
         m = FIG_RE.match(s)
         if m:
             flush_para()
-            label, width = parse_opts(m.group("opts"))
+            label, width, landscape = parse_opts(m.group("opts"))
             blocks.append(Block("figure", m.group("cap"), path=m.group("path"),
-                                width=width, label=label))
+                                width=width, label=label, landscape=landscape))
             i += 1
             continue
         m = TAB_RE.match(s)
@@ -219,9 +257,10 @@ def parse_markdown(text: str) -> List[Block]:
                 i += 1
             blocks.append(Block("table", cap, rows=rows, label=label))
             continue
-        if s.startswith("$$") and s.endswith("$$") and len(s) > 4:
+        m = re.match(r"^\$\$(.+?)\$\$\s*(?:\{#(eq:[\w.-]+)\})?\s*$", s)
+        if m:
             flush_para()
-            blocks.append(Block("display", s[2:-2].strip()))
+            blocks.append(Block("display", m.group(1).strip(), label=m.group(2) or ""))
             i += 1
             continue
         if re.match(r"^[-*]\s+", s) or re.match(r"^\d+\.\s+", s):
@@ -270,16 +309,32 @@ def load_chapters() -> List[Chapter]:
 def number_items(chapters: List[Chapter]) -> Dict[str, str]:
     """Figures through the whole thesis, tables within each chapter."""
     labels: Dict[str, str] = {}
-    fig = 0
+    fig = eq_all = tab_all = 0
+    by_section = STYLE.get("equations") == "section"
+    plain = STYLE.get("equations") == "plain"
     for ch in chapters:
-        tab = 0
+        tab = eq = 0
+        sec = f"{ch.number}.0"
         for b in ch.blocks:
+            if b.kind == "section" and by_section:
+                sec, eq = b.text.split()[0], 0
             if b.kind == "figure":
                 fig += 1
                 b.number = f"Figure {fig}"
+            elif b.kind == "display":
+                eq += 1
+                eq_all += 1
+                if plain:
+                    b.number = f"Equation ({eq_all})"
+                elif by_section:
+                    b.number = f"Eqn {sec}.{eq}"
+                else:
+                    b.number = f"Equation {ch.number}.{eq}"
             elif b.kind == "table":
                 tab += 1
-                b.number = f"Table {ch.number}.{tab}"
+                tab_all += 1
+                plain_tab = STYLE.get("tables") == "plain"
+                b.number = f"Table {tab_all}" if plain_tab else f"Table {ch.number}.{tab}"
             else:
                 continue
             if b.label:
@@ -290,6 +345,21 @@ def number_items(chapters: List[Chapter]) -> Dict[str, str]:
 
 
 CITE_RE = re.compile(r"\[(@[\w-]+(?:\s*,\s*@[\w-]+)*)\]")
+# Two or more citation groups written next to each other count as one.
+CITE_RUN_RE = re.compile(r"\[(@[\w-]+(?:\s*,\s*@[\w-]+)*)\](?:\s*,?\s*\[(@[\w-]+(?:\s*,\s*@[\w-]+)*)\])+")
+
+
+def format_citation(numbers: List[int]) -> str:
+    """[1],[2],[3],[5] -> [1-3],[5]; [1],[2] -> [1-2]; [1],[3],[6] unchanged."""
+    nums = sorted(set(numbers))
+    out, k = [], 0
+    while k < len(nums):
+        j = k
+        while j + 1 < len(nums) and nums[j + 1] == nums[j] + 1:
+            j += 1
+        out.append(f"[{nums[k]}-{nums[j]}]" if j > k else f"[{nums[k]}]")
+        k = j + 1
+    return ", ".join(out)
 
 
 def resolve_refs(text: str, labels: Dict[str, str]) -> str:
@@ -300,13 +370,14 @@ def resolve_refs(text: str, labels: Dict[str, str]) -> str:
         return labels[key]
 
     def cite(m):
-        keys = [k.strip() for k in m.group(1).split(",")]
+        keys = [k.strip() for k in re.findall(r"@[\w-]+", m.group(0))]
         missing = [k for k in keys if k not in labels]
         if missing:
             raise SystemExit(f"citation key not in references.md: {missing}")
-        return ", ".join(f"[{labels[k]}]" for k in keys)
+        return format_citation([int(labels[k]) for k in keys])
+    text = CITE_RUN_RE.sub(cite, text)
     text = CITE_RE.sub(cite, text)
-    return re.sub(r"\{((?:fig|tab):[\w.-]+)\}", sub, text)
+    return re.sub(r"\{((?:fig|tab|eq):[\w.-]+)\}", sub, text)
 
 
 def block_texts(b: Block) -> List[str]:
@@ -337,7 +408,7 @@ def number_citations(chapters: List[Chapter], labels: Dict[str, str]) -> Chapter
     unused = [k for k in refs if k not in order]
     if unused:
         log(f"note: {len(unused)} reference(s) not cited: {', '.join(unused)}")
-    items = [f"[{n}] {refs[k]}" for n, k in enumerate(order, 1)]
+    items = [f"[{n}]\t{refs[k]}" for n, k in enumerate(order, 1)]
     return Chapter(chapters[-1].number + 1, "References", [Block("refs", items=items)])
 
 
@@ -424,10 +495,28 @@ def column_widths(rows: List[List[str]], total: float) -> List[float]:
         for j, c in enumerate(r):
             longest = max((len(x) for x in re.sub(r"[*`]", "", c).split("<br>")), default=0)
             lens[j] = max(lens[j], min(longest, 60) + 4)
-    s = sum(lens)
-    widths = [max(total * x / s, 0.75) for x in lens]      # no column narrower than 0.75 in
-    scale = total / sum(widths)
-    return [w * scale for w in widths]
+    # No column narrower than 0.75 in, or than its longest word (about 0.068 in
+    # per character at 10 pt, plus cell padding), so words are never broken.
+    mins = [0.75] * n
+    for r in rows:
+        for j, c in enumerate(r):
+            words = re.sub(r"[*`]", "", c).replace("<br>", " ").split()
+            longest_word = max((len(w) for w in words), default=0)
+            mins[j] = max(mins[j], 0.068 * longest_word + 0.16)
+    if sum(mins) >= total:
+        return [m * total / sum(mins) for m in mins]
+    # Share the width in proportion to content, holding any column that would
+    # fall below its minimum at that minimum.
+    fixed: Dict[int, float] = {}
+    while True:
+        free = total - sum(fixed.values())
+        s = sum(x for j, x in enumerate(lens) if j not in fixed)
+        widths = [fixed.get(j, free * lens[j] / s) for j in range(n)]
+        low = [j for j in range(n) if j not in fixed and widths[j] < mins[j]]
+        if not low:
+            return widths
+        for j in low:
+            fixed[j] = mins[j]
 
 
 # --------------------------------------------------------------------------
@@ -449,7 +538,8 @@ class Thesis:
             if child is not self.main_sect:
                 body.remove(child)
         mar = self.main_sect.find(qn("w:pgMar"))
-        for k, v in (("top", 1440), ("bottom", 1247), ("left", 1701), ("right", 1080)):
+        for k, v in (("top", 1440), ("bottom", 1800), ("left", 1701), ("right", 1080),
+                     ("footer", 567)):
             mar.set(qn(f"w:{k}"), str(v))
 
     # -- primitives ---------------------------------------------------------
@@ -530,13 +620,10 @@ class Thesis:
         self.p("TABLE OF CONTENTS", size=14, bold=True, align=C, after=12, page_break=True)
         rows = [["S.No.", "Chapter", "Title", "Page Number"]]
         n = 0
-        for title, key in (("Acknowledgement", "front:ack"), ("Abstract", "front:abs"),
-                           ("List of Tables", "front:lot"), ("List of Figures", "front:lof")):
-            n += 1
-            rows.append([f"{n}.", "", title, self.page_no(key)])
         for ch in self.chapters:
             n += 1
-            nums, titles, pages = [str(ch.number)], [ch.title], [self.page_no(f"ch:{ch.number}")]
+            chap_no = "" if is_references(ch) and STYLE.get("references") == "unnumbered"                 else str(ch.number)
+            nums, titles, pages = [chap_no], [ch.title], [self.page_no(f"ch:{ch.number}")]
             for b in ch.blocks:
                 if b.kind == "section" and ch.title.lower() != "appendix":
                     num, _, t = b.text.partition(" ")
@@ -563,10 +650,13 @@ class Thesis:
     # -- body ---------------------------------------------------------------
     def chapter(self, ch: Chapter):
         C = WD_ALIGN_PARAGRAPH.CENTER
-        self.p(f"CHAPTER {ch.number}", size=14, bold=True, align=C, page_break=True,
-               keep_next=True)
+        # The References list is headed by its title alone, without "CHAPTER n".
+        numbered = not is_references(ch)
+        if numbered:
+            self.p(f"CHAPTER {ch.number}", size=14, bold=True, align=C, page_break=True,
+                   keep_next=True)
         self.p(ch.title.upper(), size=14, bold=True, align=C, after=18, keep_next=True,
-               outline=0)
+               outline=0, page_break=not numbered)
         for b in ch.blocks:
             self.block(b, chapter=ch.number)
 
@@ -580,7 +670,10 @@ class Thesis:
         elif b.kind == "minor":
             self.p(text, size=12, bold=True, before=8, after=2, keep_next=True)
         elif b.kind == "para":
-            self.p(text, align=J, first=0.5, after=6)
+            # A sentence that introduces a list, equation or listing stays on
+            # the same page as what it introduces.
+            lead_in = text.rstrip().endswith((":", "as follows.", "is given by", "follows:"))
+            self.p(text, align=J, first=0.5, after=6, keep_next=lead_in)
         elif b.kind in ("bullets", "numbers"):
             for k, item in enumerate(b.items, 1):
                 mark = "•" if b.kind == "bullets" else f"{k}."
@@ -589,7 +682,17 @@ class Thesis:
                 para.paragraph_format.tab_stops.add_tab_stop(Inches(0.75))
                 add_runs(para, f"{mark}\t" + resolve_refs(item, self.labels))
         elif b.kind == "display":
-            self.p(text, italic=True, align=C, before=4, after=8)
+            # Equation centred, its number at the right margin.
+            para = self.p(before=4, after=8, ls=1.0)
+            stops = para.paragraph_format.tab_stops
+            stops.add_tab_stop(Inches(TEXT_WIDTH_IN / 2), WD_TAB_ALIGNMENT.CENTER)
+            stops.add_tab_stop(Inches(TEXT_WIDTH_IN), WD_TAB_ALIGNMENT.RIGHT)
+            add_runs(para, "	", size=12)
+            add_runs(para, text, size=12, italic=True)
+            last = b.number.split()[-1]
+            num = b.number if b.number.startswith("Eqn") else (
+                last if last.startswith("(") else f"({last})")
+            add_runs(para, "	" + num, size=12)
         elif b.kind == "code":
             code_lines = b.text.split("\n")
             short = len(code_lines) <= 25          # keep short listings on one page
@@ -603,33 +706,58 @@ class Thesis:
             self.p(after=4, ls=1.0)
         elif b.kind == "figure":
             path = (ROOT / b.path) if not Path(b.path).is_absolute() else Path(b.path)
+            if b.landscape:
+                self.orientation(landscape=True)
             para = self.p(align=C, before=6, after=2, keep_next=True, ls=1.0)
+            max_w = LANDSCAPE_WIDTH_IN if b.landscape else TEXT_WIDTH_IN
             if path.exists():
-                para.add_run().add_picture(str(path), width=Inches(min(b.width, TEXT_WIDTH_IN)))
+                para.add_run().add_picture(str(path), width=Inches(min(b.width, max_w)))
             else:
                 # Not made yet (see PROGRESS.md); keep the build going and show it.
                 log(f"WARNING: figure not found, placeholder used: {b.path}")
                 add_runs(para, f"[ figure not yet generated: {b.path} ]", size=11, bold=True)
             cap = self.p(style="Caption", align=C, after=12, ls=1.0)
             add_runs(cap, f"{b.number} {text}", size=10, bold=True)
+            if b.landscape:
+                self.orientation(landscape=False)
         elif b.kind == "table":
             cap = self.p(align=C, before=8, after=4, keep_next=True, ls=1.0)
             add_runs(cap, f"{b.number} {text}", size=11, bold=True)
             rows = [[resolve_refs(c, self.labels) for c in r] for r in b.rows]
-            self.table(rows)
+            self.table(rows, all_left=STYLE.get("table_align") == "left")
             self.p(after=4, ls=1.0)
         elif b.kind == "refs":
             for item in b.items:
-                self.p(item, size=11, align=WD_ALIGN_PARAGRAPH.JUSTIFY, ls=1.0,
-                       left=0.45, first=-0.45, after=2)
+                # "[n]<tab>" so the first line's text aligns with the hanging indent.
+                para = self.p(item, size=11, align=WD_ALIGN_PARAGRAPH.JUSTIFY, ls=1.0,
+                              left=0.45, first=-0.45, after=2)
+                para.paragraph_format.tab_stops.add_tab_stop(Inches(0.45))
         elif b.kind == "pagebreak":
             self.p(page_break=True, ls=1.0)
 
+    def orientation(self, landscape: bool) -> None:
+        """Start a new section on a new page, landscape or back to portrait.
+
+        The new section inherits the footer, and its page numbers continue
+        from the previous section instead of restarting.
+        """
+        sect = self.doc.add_section(WD_SECTION.NEW_PAGE)
+        pg = sect._sectPr.find(qn("w:pgNumType"))
+        if pg is not None and pg.get(qn("w:start")) is not None:
+            del pg.attrib[qn("w:start")]
+        w, h = sect.page_width, sect.page_height
+        if landscape != (w > h):
+            sect.page_width, sect.page_height = h, w
+        sect.orientation = WD_ORIENT.LANDSCAPE if landscape else WD_ORIENT.PORTRAIT
+
     def table(self, rows, widths=None, header_fill="E7E6E6", size=10.0, center_cols=(),
-              keep_together=True):
+              keep_together=True, all_left=False):
         n = max(len(r) for r in rows)
         rows = [r + [""] * (n - len(r)) for r in rows]
         widths = widths or column_widths(rows, TEXT_WIDTH_IN)
+        body = rows[1:]
+        numeric_col = [j in center_cols or (bool(body) and sum(
+            is_numeric(r[j]) for r in body) * 2 > len(body)) for j in range(n)]
         t = self.doc.add_table(rows=len(rows), cols=n)
         t.style = self.doc.styles["Table Grid"]
         t.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -638,15 +766,20 @@ class Thesis:
             for j, c in enumerate(r):
                 cell = t.cell(i, j)
                 cell.width = Inches(widths[j])
-                align = (WD_ALIGN_PARAGRAPH.CENTER
-                         if (i == 0 or j in center_cols or NUMERIC.match(c.strip("* ")))
-                         else WD_ALIGN_PARAGRAPH.LEFT)
-                set_cell(cell, c, bold=(i == 0), size=size, align=align)
+                # One alignment per column: centred if most of it is numbers.
+                centred = numeric_col[j] and not all_left
+                align = WD_ALIGN_PARAGRAPH.CENTER if centred else WD_ALIGN_PARAGRAPH.LEFT
+                set_cell(cell, capitalise(c), bold=(i == 0), size=size, align=align)
                 if i == 0 and header_fill:
                     shade(cell, header_fill)
         repeat_header(t.rows[0])
-        if keep_together and len(rows) <= 12:
-            # Keep short tables on one page: every row but the last keeps with the next.
+        for row in t.rows:
+            trPr = row._tr.get_or_add_trPr()
+            el = OxmlElement("w:cantSplit")
+            el.set(qn("w:val"), "true")
+            trPr.append(el)
+        if keep_together:
+            # The whole table on one page: every row but the last keeps with the next.
             for row in t.rows[:-1]:
                 for cell in row.cells:
                     for para in cell.paragraphs:
@@ -662,10 +795,31 @@ class Thesis:
         self.contents()
         self.list_of("List of Tables", "table", "lot")
         self.list_of("List of Figures", "figure", "lof")
+        self.start_body_numbering()
         for ch in self.chapters:
             self.chapter(ch)
         self.drop_unused_media()
         return self.doc
+
+    def start_body_numbering(self) -> None:
+        """Close the front matter, which carries no page number, and start the body at 1."""
+        self.doc.add_section(WD_SECTION.NEW_PAGE)
+        front, body = self.doc.sections[-2], self.doc.sections[-1]
+        # The body keeps the template's numbered footer; the front matter gets an empty one.
+        numbered = [copy.deepcopy(p._p) for p in front.footer.paragraphs]
+        body.footer.is_linked_to_previous = False
+        ftr = body.footer._element
+        for p in ftr.findall(qn("w:p")):
+            ftr.remove(p)
+        for p in numbered:
+            ftr.append(p)
+        front.footer.is_linked_to_previous = False
+        pg = body._sectPr.find(qn("w:pgNumType"))
+        if pg is None:
+            pg = OxmlElement("w:pgNumType")
+            body._sectPr.append(pg)
+        pg.set(qn("w:fmt"), "decimal")
+        pg.set(qn("w:start"), "1")
 
     def drop_unused_media(self):
         """Remove the template's own images and chart, which nothing references now."""
@@ -710,8 +864,12 @@ def pdf_pages(pdf: Path) -> List[str]:
     return [re.sub(r"\s+", " ", pg) for pg in out.split("\f")]
 
 
+def is_references(ch: Chapter) -> bool:
+    return ch.title == "References"
+
+
 def printed_number(page_text: str) -> Optional[str]:
-    m = re.search(r"(\d+)\s*$", page_text.strip())
+    m = re.search(r"(?:^|\s)(\d+|[ivxlc]+)\s*$", page_text.strip())
     return m.group(1) if m else None
 
 
@@ -719,7 +877,8 @@ def locate(chapters: List[Chapter], pages: List[str]) -> Dict[str, str]:
     """Find the printed page of every chapter, section, table and figure."""
     targets: List[Tuple[str, str]] = []
     for ch in chapters:
-        targets.append((f"ch:{ch.number}", f"CHAPTER {ch.number} {ch.title.upper()}"))
+        targets.append((f"ch:{ch.number}", ch.title.upper() if is_references(ch)
+                        else f"CHAPTER {ch.number} {ch.title.upper()}"))
         for b in ch.blocks:
             if b.kind == "section":
                 targets.append((f"sec:{b.text}", b.text))
@@ -743,25 +902,196 @@ def locate(chapters: List[Chapter], pages: List[str]) -> Dict[str, str]:
             continue
         cur = k
         found[key] = printed_number(pages[k]) or str(k)
-    for key, needle in (("front:ack", "ACKNOWLEDGEMENTS"), ("front:abs", "ABSTRACT"),
-                        ("front:lot", "List of Tables"), ("front:lof", "List of Figures")):
+    for key, needle in (("front:lot", "List of Tables"), ("front:lof", "List of Figures")):
         for k, pg in enumerate(pages[:start]):
+            if "TABLE OF CONTENTS" in pg:
+                continue                  # the contents page lists both titles
             if pg.strip().startswith(needle) or f" {needle} " in pg[:80]:
                 found[key] = printed_number(pg) or str(k)
                 break
     return found
 
 
+# --------------------------------------------------------------------------
+# Abbreviations and the writing rules of the v2 document
+# --------------------------------------------------------------------------
+
+PROSE = ("para", "bullets", "numbers")
+# Spans that are never rewritten: code, citations and cross-references.
+_PROTECTED = re.compile(r"`[^`]+`|\[@[^\]]+\]|\{(?:fig|tab|eq):[\w.-]+\}")
+
+
+def load_abbreviations(path: Path) -> Dict[str, str]:
+    out: Dict[str, str] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        m = re.match(r"^([^#:\s][^:]*?)\s*:\s*(.+)$", line.strip())
+        if m:
+            out[m.group(1)] = m.group(2)
+    return out
+
+
+def abbr_pattern(abbr: str) -> re.Pattern:
+    # Whole word only, and not part of a hyphenated name such as DP-FedFace.
+    return re.compile(rf"(?<![\w-]){re.escape(abbr)}(s?)(?![\w-])")
+
+
+def doc_order(front: Dict[str, List[Block]], chapters: List[Chapter]):
+    for key in ("acknowledgements", "abstract"):
+        for b in front.get(key, []):
+            yield b
+    for ch in chapters:
+        for b in ch.blocks:
+            yield b
+
+
+def _texts(b: Block) -> List[Tuple[str, int]]:
+    """(text, index) pairs of a block; index -1 is b.text, k is b.items[k]."""
+    if b.kind in ("bullets", "numbers"):
+        return [(x, k) for k, x in enumerate(b.items)]
+    return [(b.text, -1)]
+
+
+def _set(b: Block, k: int, text: str) -> None:
+    if k < 0:
+        b.text = text
+    else:
+        b.items[k] = text
+
+
+def expand_abbreviations(front, chapters, path: Path) -> None:
+    """Write each abbreviation out in full at its first use in running text."""
+    glossary = load_abbreviations(path)
+    defined: Dict[str, bool] = {a: False for a in glossary}
+    early: Dict[str, str] = {}
+    for b in doc_order(front, chapters):
+        if b.kind == "code" or b.kind == "display":
+            continue
+        for text, k in _texts(b):
+            if not text:
+                continue
+            for abbr, full in glossary.items():
+                if defined[abbr]:
+                    continue
+                if f"({abbr})" in text or f"({abbr}s)" in text:
+                    defined[abbr] = True            # written out by hand
+                    continue
+                pat = abbr_pattern(abbr)
+                hits = [m for m in pat.finditer(text)
+                        if not any(s.start() <= m.start() < s.end()
+                                   for s in _PROTECTED.finditer(text))]
+                if not hits:
+                    continue
+                if b.kind not in PROSE:
+                    early.setdefault(abbr, f"{b.kind}: {text[:60]}")
+                    continue
+                m = hits[0]
+                plural = m.group(1)
+                long = full + ("s" if plural and not full.endswith("s") else "")
+                text = text[:m.start()] + f"{long} ({abbr}{plural})" + text[m.end():]
+                _set(b, k, text)
+                defined[abbr] = True
+    for abbr, where in early.items():
+        if not defined[abbr] or True:
+            log(f"lint: {abbr} appears in a {where!r} before it is defined in running text")
+    unused = [a for a, d in defined.items() if not d]
+    if unused:
+        log(f"note: abbreviations never used: {', '.join(unused)}")
+    STYLE["_glossary"] = glossary
+
+
+def lint(front, chapters) -> None:
+    """Warnings for the v2 writing rules. They never stop the build."""
+    glossary: Dict[str, str] = STYLE.get("_glossary", {})       # type: ignore
+    seen_full: Dict[str, bool] = {}
+    blocks = list(doc_order(front, chapters))
+    n_warn = 0
+
+    def warn(msg):
+        nonlocal n_warn
+        n_warn += 1
+        log(f"lint: {msg}")
+
+    lines = lambda s: len(re.sub(r"\[@[^\]]+\]|\{[^}]+\}|[*`]", "", s)) / 95
+    for i, b in enumerate(blocks):
+        nxt = blocks[i + 1] if i + 1 < len(blocks) else None
+        if b.kind in ("bullets", "numbers"):
+            warn(f"list instead of prose: {b.items[0][:60]!r}")
+        if b.kind == "display" and (nxt is None or nxt.kind != "para"):
+            warn(f"equation without an explanation paragraph: {b.text[:40]!r}")
+        if b.kind in ("section", "subsection") and nxt is not None \
+                and nxt.kind in ("section", "subsection", "minor"):
+            warn(f"heading followed directly by a heading: {b.text!r}")
+        if b.kind == "section" and nxt is not None and nxt.kind == "para":
+            # A section with sub-sections opens with a paragraph of 5-6 lines.
+            following = next((x for x in blocks[i + 1:]
+                              if x.kind in ("section", "subsection")), None)
+            if following is not None and following.kind == "subsection" \
+                    and lines(nxt.text) < 4.5:
+                warn(f"lead paragraph under {b.text!r} is {lines(nxt.text):.1f} lines")
+        if b.kind not in PROSE:
+            continue
+        for text, _ in _texts(b):
+            clean = _PROTECTED.sub("", text)
+            for m in re.finditer(r"\(([^)]*)\)", clean):
+                inner = m.group(1).rstrip("s")
+                if inner not in glossary:
+                    warn(f"bracket in prose: {clean[max(0, m.start() - 30):m.end() + 10]!r}")
+            if "?" in clean:
+                warn(f"question in prose: {clean[:70]!r}")
+            for m in re.finditer(r"\[@[^\]]+\](?:\s*,?\s*\[@[^\]]+\])*", text):
+                after = text[m.end():m.end() + 2]
+                if after and not re.match(r"^[.\s]*$", after[:1]) and after[:1] != ".":
+                    warn(f"citation not at the end of a sentence: "
+                         f"{text[max(0, m.start() - 40):m.end() + 15]!r}")
+            # A definition "Full Form (ABBR)" is not a later use of its own words,
+            # nor of an abbreviation inside it, such as CPU inside vCPU.
+            plain = clean
+            for ab, fu in glossary.items():
+                plain = re.sub(re.escape(f"{fu} ({ab}") + r"s?\)", " ", plain)
+            for abbr, full in glossary.items():
+                if f"{full} ({abbr}" in clean:
+                    seen_full[abbr] = True
+                    continue
+                if re.search(re.escape(full), plain, re.I):
+                    if seen_full.get(abbr):
+                        warn(f"full form after definition, use {abbr}: {full!r}")
+                    seen_full[abbr] = True
+                elif abbr_pattern(abbr).search(clean):
+                    seen_full[abbr] = True
+        if b.kind == "para" and nxt is not None and nxt.kind == "para" \
+                and lines(b.text) < 4 and lines(nxt.text) < 4:
+            warn(f"two short paragraphs in a row: {b.text[:60]!r}")
+    for ch in chapters:
+        if ch.blocks and ch.blocks[0].kind == "para" and lines(ch.blocks[0].text) < 4.5:
+            warn(f"chapter {ch.number} opens with a {lines(ch.blocks[0].text):.1f}-line paragraph")
+    log(f"lint: {n_warn} warning(s)")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--no-pdf", action="store_true", help="skip Word rendering")
+    ap.add_argument("--content", default="content",
+                    help="content folder under docs/thesis, e.g. content_v2")
+    ap.add_argument("--out", default=None,
+                    help="output name in docs/, e.g. FedMPS_Capstone_Thesis_v2")
     args = ap.parse_args()
 
+    global CONTENT, OUT_DOCX, OUT_PDF
+    CONTENT = HERE / args.content
+    if args.out:
+        OUT_DOCX = ROOT / "docs" / f"{args.out}.docx"
+        OUT_PDF = OUT_DOCX.with_suffix(".pdf")
+
     meta = json.loads((CONTENT / "meta.json").read_text(encoding="utf-8"))
+    STYLE.update(meta.get("style", {}))
     front = load_front()
     chapters = load_chapters()
     labels = number_items(chapters)
     chapters.append(number_citations(chapters, labels))
+    if STYLE.get("abbreviations"):
+        expand_abbreviations(front, chapters, CONTENT / str(STYLE["abbreviations"]))
+    if STYLE.get("lint"):
+        lint(front, chapters)
     log(f"{len(chapters)} chapters, "
         f"{sum(b.kind == 'figure' for c in chapters for b in c.blocks)} figures, "
         f"{sum(b.kind == 'table' for c in chapters for b in c.blocks)} tables")

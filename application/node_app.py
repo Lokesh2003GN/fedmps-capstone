@@ -22,7 +22,10 @@ need to.
 
 from __future__ import annotations
 
+import json
+import subprocess
 import sys
+import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -50,6 +53,68 @@ def _store(_path: str) -> Store:
 
 cfg = _cfg()
 store = _store(str(cfg.paths.artifacts / "fedmps.sqlite"))
+ROOT = Path(__file__).resolve().parents[1]
+
+SCAN_MODES = {
+    "first": "find the first match, then stop",
+    "full": "scan the whole video for every match",
+}
+
+
+def _fmt_secs(s) -> str:
+    if s is None:
+        return "estimating…"
+    s = int(round(s))
+    return f"{s // 60} min {s % 60:02d} s" if s >= 60 else f"{s} s"
+
+
+def _read_progress(path: Path) -> dict:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def start_scan(node: int, video: Path, first_match_only: bool) -> None:
+    """Run the pipeline in a separate process, so the console stays live and
+    can draw a progress bar from the file the scan writes after every frame."""
+    progress_file = cfg.paths.artifacts / f"scan_node{node}.json"
+    log_file = cfg.paths.artifacts / f"scan_node{node}.log"
+    progress_file.unlink(missing_ok=True)
+    cmd = [
+        sys.executable, "application/run_video_scan.py",
+        "--video", str(video),
+        "--node", str(node),
+        "--camera", f"cam-{'ABCDE'[node % 5]} (site {node})",
+        "--fps-cap", "0",
+        "--sample-fps", "4",
+        "--progress-file", str(progress_file),
+    ]
+    if first_match_only:
+        cmd.append("--stop-on-alert")
+    log = open(log_file, "w", encoding="utf-8")
+    proc = subprocess.Popen(cmd, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
+    st.session_state["scan"] = {
+        "proc": proc, "log": log, "log_file": log_file,
+        "progress_file": progress_file, "node": node,
+        "mode": "first" if first_match_only else "full",
+    }
+    st.session_state.pop("last_scan", None)
+
+
+def finish_scan(stopped_by_user: bool = False) -> None:
+    scan = st.session_state.pop("scan")
+    scan["log"].close()
+    state = _read_progress(scan["progress_file"])
+    if stopped_by_user:
+        state["phase"] = "stopped"
+    elif state.get("phase") != "done":
+        tail = scan["log_file"].read_text(encoding="utf-8", errors="replace")
+        state = {"phase": "error",
+                 "error": state.get("error") or tail.strip()[-800:]}
+    state["mode"] = scan["mode"]
+    state["node"] = scan["node"]
+    st.session_state["last_scan"] = state
 
 with st.sidebar:
     st.header("This node")
@@ -69,23 +134,21 @@ with st.sidebar:
     st.divider()
     st.subheader("Camera Feed Simulation")
     video_file = cfg.paths.media / f"node{int(node_id)}.mp4"
+    scanning = "scan" in st.session_state
     if video_file.exists():
-        if st.button(f"▶ Scan video (media/node{int(node_id)}.mp4)",
-                     help="Process this node's camera video against the active watchlist"):
-            with st.spinner(f"Scanning camera video for Node {int(node_id)}..."):
-                import subprocess
-                cmd = [
-                    sys.executable,
-                    "application/run_video_scan.py",
-                    "--video", str(video_file),
-                    "--node", str(int(node_id)),
-                    "--camera", f"cam-{'ABCDE'[int(node_id) % 5]} (site {int(node_id)})",
-                    "--fps-cap", "0",
-                    "--sample-fps", "4",
-                    "--stop-on-alert",
-                ]
-                subprocess.run(cmd, cwd=Path(__file__).resolve().parents[1])
-            st.success("Scan complete!")
+        st.caption(f"Video: `media/node{int(node_id)}.mp4`")
+        if st.button("🔍 Find first match and stop", type="primary",
+                     disabled=scanning, width="stretch",
+                     help="Stops as soon as one person is matched and raised "
+                          "as an alert: the fastest way to answer whether "
+                          "this person was seen here."):
+            start_scan(int(node_id), video_file, first_match_only=True)
+            st.rerun()
+        if st.button("🎞 Scan full video, all matches",
+                     disabled=scanning, width="stretch",
+                     help="Scans every sampled frame to the end and raises an "
+                          "alert for every matching track."):
+            start_scan(int(node_id), video_file, first_match_only=False)
             st.rerun()
     else:
         st.caption(f"No video file found at {video_file}")
@@ -103,6 +166,48 @@ c1.metric("Awaiting review", len(pending))
 c2.metric("Confirmed", len(confirmed))
 c3.metric("Rejected", len(rejected))
 c4.metric("Cases watched", len(watchlist))
+
+# --------------------------------------------------------------------------
+# Scan status
+# --------------------------------------------------------------------------
+
+# Filled at the end of the script, so the tabs below render first.
+status_box = st.container()
+
+if "last_scan" in st.session_state and "scan" not in st.session_state:
+    last = st.session_state["last_scan"]
+    alerts = last.get("alerts", [])
+    with status_box.container(border=True):
+        if last["phase"] == "error":
+            st.error("The scan failed.")
+            st.code(last.get("error", ""), language=None)
+        elif last["phase"] == "stopped":
+            st.warning("Scan stopped. Any alerts raised before stopping are "
+                       "in the review queue.")
+        elif last["mode"] == "first" and alerts:
+            total = last.get("total_frames") or 0
+            where = (f" at frame {last['frame']} of {total} "
+                     f"({last['frame'] / total:.0%} of the video)"
+                     if total else f" at frame {last['frame']}")
+            st.success(f"Match found{where}; scan stopped. Review it below.")
+        elif last["mode"] == "first":
+            st.info("Whole video scanned: no match found.")
+        else:
+            st.success(f"Full video scanned in "
+                       f"{_fmt_secs(last.get('elapsed_s'))}: "
+                       f"{len(alerts)} match(es) raised for review.")
+        if alerts:
+            names = {w["case_id"]: w["name"] for w in store.templates_for_node(
+                last["node"], include_inactive=True)}
+            st.dataframe([{
+                "alert": a["alert_id"],
+                "person": names.get(a["case_id"], a["case_id"]),
+                "track": a["track_id"],
+                "score": round(a["score"], 3),
+            } for a in alerts], width="stretch", hide_index=True)
+        if st.button("Dismiss"):
+            del st.session_state["last_scan"]
+            st.rerun()
 
 tab_queue, tab_watchlist, tab_labels = st.tabs(
     ["Review queue", "Watchlist", "Training labels"])
@@ -247,3 +352,46 @@ with tab_labels:
         st.dataframe(entries[:100], width="stretch", hide_index=True)
     else:
         st.info("Nothing logged for this node yet.")
+
+
+# --------------------------------------------------------------------------
+# Scan in progress: poll the scan's progress file and redraw the bar. This
+# runs last so the review queue above stays usable while the video is scanned.
+# --------------------------------------------------------------------------
+
+if "scan" in st.session_state:
+    scan = st.session_state["scan"]
+    with status_box.container(border=True):
+        head, stop_col = st.columns([5, 1])
+        head.markdown(f"**Scanning node {scan['node']}'s video**: "
+                      f"{SCAN_MODES[scan['mode']]}")
+        if stop_col.button("■ Stop scan", width="stretch"):
+            scan["proc"].terminate()
+            scan["proc"].wait()
+            finish_scan(stopped_by_user=True)
+            st.rerun()
+        bar = st.progress(0.0, text="Loading the face models…")
+        detail = st.empty()
+        while scan["proc"].poll() is None:
+            p = _read_progress(scan["progress_file"])
+            if p.get("phase") == "scanning":
+                frac = p.get("fraction")
+                found = len(p.get("alerts", []))
+                if frac is None:
+                    bar.progress(0.0, text=f"Scanning… frame {p['frame']}")
+                else:
+                    bar.progress(frac, text=(
+                        f"Scanning… {frac:.0%} · frame {p['frame']} of "
+                        f"{p['total_frames']} · about "
+                        f"{_fmt_secs(p.get('eta_s'))} left"))
+                detail.caption(
+                    f"{found} match(es) so far · {p['processed']} frames "
+                    f"analysed in {_fmt_secs(p.get('elapsed_s'))}")
+                # A new alert is in the store: redraw the page so it shows up
+                # in the review queue while the scan carries on.
+                if found > scan.get("shown", 0):
+                    scan["shown"] = found
+                    st.rerun()
+            time.sleep(0.5)
+        finish_scan()
+        st.rerun()

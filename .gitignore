@@ -50,6 +50,13 @@ media/node2.mp4
 # Unreferenced image left over from testing.
 media/download.jpg
 
+# Node-0 demo inputs: a third-party YouTube video ("Experience Excellence: Life at
+# VIT-AP", https://youtu.be/EzHwEE6gV3E, 52 MB) and a photo of a real person from
+# it. Not ours to redistribute; download the video from the link to rerun the demo.
+media/node0.mp4
+media/person.jpg
+media/chacellor.*
+
 # --- training-run figures (the review document's copies are in figures/) ----
 figures/training_run/
 
@@ -59,8 +66,14 @@ docs/thesis/figures/audit_rows.json
 docs/thesis/figures/fl_round.png
 docs/thesis/figures/server_console.png
 docs/thesis/figures/confirmed_sighting.png
-# Internal build tracker with team details still to confirm.
+docs/thesis/figures/v2_audit_rows.json
+# Internal build trackers (team details, AWS account and bucket names).
 docs/thesis/PROGRESS.md
+docs/thesis/PROGRESS_v2.md
+
+# --- presentation: private reports kept local ---------------------------------
+# Plagiarism / originality reports.
+docs/presentation/Plag-*.pdf
 # Word and LibreOffice lock files and temporary exports
 .~lock.*#
 *.tmp

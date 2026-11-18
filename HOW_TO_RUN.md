@@ -184,6 +184,77 @@ rsync -av ubuntu@<aws-host>:/home/ubuntu/fedmps/results ./
 rsync -av ubuntu@<aws-host>:/home/ubuntu/fedmps/checkpoints ./
 ```
 
+### 2.6 The VGGFace2-HQ run: 70% training, 30% validation, 200 rounds (25 Oct 2026)
+
+The supervisor asked for 70% of identities to train and 30% to be held out as the
+validation set, for every available image to be used, and for 200 federated
+rounds. This run does that on **VGGFace2-HQ** (Kaggle `zenbot99/vggface2-hq`):
+4,605 identities, 628,699 images at 512x512. Its creators restored the
+VGGFace2 photographs with GFPGAN and aligned them to the FFHQ layout
+(github.com/NNNNAI/VGGFace2-HQ), so the "clean" faces are restored images,
+not the original photographs.
+
+Download on the instance only (the Kaggle key stays in `~/.kaggle`, mode 600):
+
+```bash
+printf "Authorization: Bearer %s\n" "$(cat ~/.kaggle/access_token)" > ~/.kaggle/auth_header
+curl -L -C - -H @$HOME/.kaggle/auth_header \
+     https://www.kaggle.com/api/v1/datasets/download/zenbot99/vggface2-hq -o ~/data/vggface2-hq.zip
+unzip -q ~/data/vggface2-hq.zip -d ~/data/
+```
+
+The Kaggle CLI that pip installs for Python 3.10 (1.7.4.5) does not accept the
+new `KGAT_` keys; the web API above does. 52 GB took 51 minutes at 17 MB/s,
+and unzipping another 13.
+
+**Step 1, streaming preparation (84 min on a g4dn.2xlarge).** The in-memory
+`01_prepare_data.py` would need about 60 GB of RAM here, so
+`01b_prepare_stream.py` does the same steps chunk by chunk and also keeps the
+layer-4 features of every degraded crop (for the head adapter, `models/head.py`):
+
+```bash
+python training/01b_prepare_stream.py --folder ~/data/VGGface2_HQ --out-suffix _vgghq \
+    --feat-dir /opt/dlami/nvme/fedmps/vgghq --device cuda --workers 6 --threads 4 \
+    --gpu-in-main --save-crops
+```
+
+`--gpu-in-main` matters: with the detector in every worker, eight processes
+shared the T4 and it ran at 51-61 images/s; with one GPU context it runs at
+121 images/s. The features (31.5 GB) and crops (47 GB) go to the instance's
+NVMe disk, which survives a reboot but not a stop. `--resume-from N
+--resume-aligned M` continues a stopped run from row N. The split: 3,223
+identities (438,053 images) over the five nodes, 1,382 (190,646 images) held
+out. 628,179 of 628,699 faces were aligned (0.08% missed).
+
+**Step 2, pilot (20 min).** Model settings are chosen on 10% of the *training*
+identities, never on the held-out 30%:
+
+```bash
+python training/04_pilot.py --artifacts-suffix _vgghq --device cuda --rounds 30
+```
+
+It compares the frozen backbone, the first run's adapter, a wider adapter with a
+weaker proximal term, and the backbone head. The wider adapter (hidden 256,
+mu 0.3) had the best TPIR at 1% FPIR and was used below
+(`results/pilot_vgghq.json`).
+
+**Step 3, 200 rounds and the side experiments (about 1.5 h):**
+
+```bash
+python training/02_run_experiments.py --artifacts-suffix _vgghq \
+    --only three_way dp_sweep masking templates fedprox mia --rounds 200 --aux-rounds 30 \
+    --device cuda --fp16-store --adapter-kind mlp --hidden 256 --mu 0.3 --epoch-frac 0.15 \
+    --eval-every 1 --no-figures --out experiments_vgghq.json
+python training/02_run_experiments.py --artifacts-suffix _vgghq \
+    --only degradation operating_points --no-figures --out experiments_vgghq_base.json
+```
+
+`--epoch-frac 0.15` makes each round pass over 15% of a node's data, so the 200
+rounds add up to the 30 epochs the pilot validated. A first launch with a full
+epoch every round (200 epochs) was stopped after its local-only arm overfitted
+(`training/aws_logs/experiments_vgghq_stopped_overfit.log`). Results are saved
+after every experiment, so a failure late in the run keeps the earlier ones.
+
 ---
 
 ## 3. Part 2 — Streamlit application (demo)
@@ -232,7 +303,12 @@ It takes about a minute on CPU. Expected output:
 
 To show matching on the **protected templates only**, add `--match-mode template`. The same pairing then raises an alert at score 0.387, against a template-mode threshold of 0.2656.
 
-You can also open a case in the server console (upload a photo) and press **Scan video** in the node console's sidebar. That button scans `media/node<id>.mp4` for the selected node.
+You can also open a case in the server console (upload a photo) and scan `media/node<id>.mp4` from the node console's sidebar. There are two buttons:
+
+- **Find first match and stop**: stops as soon as one alert is raised. This is the quickest way to answer "was this person seen here?".
+- **Scan full video, all matches**: scans to the end and raises an alert for every matching track.
+
+While a scan runs, a progress bar shows how much of the video is done, the time left and the matches found so far. New alerts appear in the review queue as they are found, and **Stop scan** ends a scan early.
 
 ### 3.5 What the demo shows
 

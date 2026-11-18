@@ -1,0 +1,101 @@
+[run] reading artefacts from /home/ubuntu/fedmps/artifacts_vgghq
+images        : 628699
+identities    : 4605
+backbone      : insightface
+nodes         : 5
+test images   : 190646
+extra non-mates: 0
+  node_0:  322 ids  42677 train     1 val
+  node_1:  483 ids  67576 train     1 val
+  node_2:  644 ids  90003 train     1 val
+  node_3:  805 ids  106408 train     1 val
+  node_4:  969 ids  131384 train     1 val
+
+[run] experiments: dp_sweep, masking, templates, fedprox, mia
+[exp] dp_sweep: 5 settings x 2 rounds
+[fl] federated: FedProx, 5 nodes, 2 rounds, 5 sampled per round
+[fl]   round   1/2  rank1=0.9709  val_rank1=nan  sim_gain=+0.0175  |delta|=0.1772
+[fl]   round   2/2  rank1=0.9711  val_rank1=nan  sim_gain=+0.0138  |delta|=0.0920
+[fl] federated: rank1=0.9711  tpir@fpir=0.0001=0.5535  tpir@fpir=0.001=0.7774  tpir@fpir=0.01=0.8814  tpir@fpir=0.1=0.9411  ver_auc=0.9391
+[exp]   calibrated clip_norm=0.315 from 10 observed updates (median 0.235, p95 0.410) -> 30% clipped
+[fl] federated: FedProx, 5 nodes, 2 rounds, 5 sampled per round
+[fl]   round   1/2  rank1=0.9709  val_rank1=nan  sim_gain=+0.0224  |delta|=0.1549
+[fl]   round   2/2  rank1=0.9709  val_rank1=nan  sim_gain=+0.0144  |delta|=0.0939
+[fl] federated: rank1=0.9709  tpir@fpir=0.0001=0.5870  tpir@fpir=0.001=0.7750  tpir@fpir=0.01=0.8828  tpir@fpir=0.1=0.9413  ver_auc=0.9390
+[exp]   sigma=0.00  eps=     inf  rank1=0.9709  clipped=0.0
+[fl] federated: FedProx, 5 nodes, 2 rounds, 5 sampled per round
+[fl]   round   1/2  rank1=0.1844  val_rank1=nan  sim_gain=+0.0267  |delta|=10.2634
+[fl]   round   2/2  rank1=0.1075  val_rank1=nan  sim_gain=-0.2378  |delta|=10.3020
+[fl] federated: rank1=0.1075  tpir@fpir=0.0001=0.0010  tpir@fpir=0.001=0.0028  tpir@fpir=0.01=0.0106  tpir@fpir=0.1=0.0393  ver_auc=0.7419
+[exp]   sigma=0.30  eps=  32.349  rank1=0.1075  clipped=1.0
+[fl] federated: FedProx, 5 nodes, 2 rounds, 5 sampled per round
+[fl]   round   1/2  rank1=0.0273  val_rank1=nan  sim_gain=+0.0151  |delta|=20.5148
+[fl]   round   2/2  rank1=0.0135  val_rank1=nan  sim_gain=-0.2810  |delta|=20.5813
+[fl] federated: rank1=0.0135  tpir@fpir=0.0001=0.0000  tpir@fpir=0.001=0.0001  tpir@fpir=0.01=0.0003  tpir@fpir=0.1=0.0020  ver_auc=0.6345
+[exp]   sigma=0.60  eps=  13.135  rank1=0.0135  clipped=1.0
+[fl] federated: FedProx, 5 nodes, 2 rounds, 5 sampled per round
+[fl]   round   1/2  rank1=0.0061  val_rank1=nan  sim_gain=+0.0331  |delta|=34.2950
+[fl]   round   2/2  rank1=0.0058  val_rank1=nan  sim_gain=-0.2991  |delta|=34.2329
+[fl] federated: rank1=0.0058  tpir@fpir=0.0001=0.0000  tpir@fpir=0.001=0.0001  tpir@fpir=0.01=0.0003  tpir@fpir=0.1=0.0011  ver_auc=0.5775
+[exp]   sigma=1.00  eps=   7.088  rank1=0.0058  clipped=0.8
+[fl] federated: FedProx, 5 nodes, 2 rounds, 5 sampled per round
+[fl]   round   1/2  rank1=0.0031  val_rank1=nan  sim_gain=+0.0307  |delta|=68.5097
+[fl]   round   2/2  rank1=0.0021  val_rank1=nan  sim_gain=-0.2981  |delta|=68.4469
+[fl] federated: rank1=0.0021  tpir@fpir=0.0001=0.0000  tpir@fpir=0.001=0.0000  tpir@fpir=0.01=0.0000  tpir@fpir=0.1=0.0002  ver_auc=0.5380
+[exp]   sigma=2.00  eps=   3.214  rank1=0.0021  clipped=0.8
+[exp] masking: 2 rounds, with and without
+[fl] federated: FedProx, 5 nodes, 2 rounds, 5 sampled per round
+[fl]   round   1/2  rank1=0.9709  val_rank1=nan  sim_gain=+0.0175  |delta|=0.1772
+[fl]   round   2/2  rank1=0.9711  val_rank1=nan  sim_gain=+0.0138  |delta|=0.0920
+[fl] federated: rank1=0.9711  tpir@fpir=0.0001=0.5535  tpir@fpir=0.001=0.7774  tpir@fpir=0.01=0.8814  tpir@fpir=0.1=0.9411  ver_auc=0.9391
+[fl] federated: FedProx, 5 nodes, 2 rounds, 5 sampled per round
+[fl]   round   1/2  rank1=0.9709  val_rank1=nan  sim_gain=+0.0175  |delta|=0.1772
+[fl]   round   2/2  rank1=0.9711  val_rank1=nan  sim_gain=+0.0138  |delta|=0.0920
+[fl] federated: rank1=0.9711  tpir@fpir=0.0001=0.5535  tpir@fpir=0.001=0.7774  tpir@fpir=0.01=0.8814  tpir@fpir=0.1=0.9411  ver_auc=0.9391
+[exp]   rank1 plain=0.9711  masked=0.9711  difference=+0.00000
+[exp]   wall clock 8.7s -> 8.9s (1.02x)
+[exp] templates: sweeping [32, 64, 96, 128, 256] bits
+[exp]   float embeddings (unprotected): rank1=0.9683
+[exp]     32 bits ( 4 bytes): rank1=0.1066  cost=+0.8616
+[exp]     64 bits ( 8 bytes): rank1=0.2802  cost=+0.6881
+[exp]     96 bits (12 bytes): rank1=0.4474  cost=+0.5209
+[exp]    128 bits (16 bytes): rank1=0.5687  cost=+0.3996
+[exp]    256 bits (32 bytes): rank1=0.8040  cost=+0.1642
+[exp] fedprox: mu in [0.0, 0.01, 0.1, 1.0], 2 rounds each
+[fl] federated: FedAvg, 5 nodes, 2 rounds, 5 sampled per round
+[fl]   round   1/2  rank1=0.9707  val_rank1=nan  sim_gain=+0.0171  |delta|=0.3827
+[fl]   round   2/2  rank1=0.9710  val_rank1=nan  sim_gain=+0.0148  |delta|=0.1897
+[fl] federated: rank1=0.9710  tpir@fpir=0.0001=0.5496  tpir@fpir=0.001=0.7705  tpir@fpir=0.01=0.8800  tpir@fpir=0.1=0.9409  ver_auc=0.9392
+[exp]   mu=0     rank1=0.9710  |delta|=0.1897
+[fl] federated: FedProx, 5 nodes, 2 rounds, 5 sampled per round
+[fl]   round   1/2  rank1=0.9707  val_rank1=nan  sim_gain=+0.0171  |delta|=0.3121
+[fl]   round   2/2  rank1=0.9710  val_rank1=nan  sim_gain=+0.0147  |delta|=0.1656
+[fl] federated: rank1=0.9710  tpir@fpir=0.0001=0.5497  tpir@fpir=0.001=0.7710  tpir@fpir=0.01=0.8800  tpir@fpir=0.1=0.9409  ver_auc=0.9392
+[exp]   mu=0.01  rank1=0.9710  |delta|=0.1656
+[fl] federated: FedProx, 5 nodes, 2 rounds, 5 sampled per round
+[fl]   round   1/2  rank1=0.9709  val_rank1=nan  sim_gain=+0.0172  |delta|=0.2181
+[fl]   round   2/2  rank1=0.9710  val_rank1=nan  sim_gain=+0.0143  |delta|=0.1173
+[fl] federated: rank1=0.9710  tpir@fpir=0.0001=0.5517  tpir@fpir=0.001=0.7739  tpir@fpir=0.01=0.8806  tpir@fpir=0.1=0.9411  ver_auc=0.9391
+[exp]   mu=0.1   rank1=0.9710  |delta|=0.1173
+[fl] federated: FedProx, 5 nodes, 2 rounds, 5 sampled per round
+[fl]   round   1/2  rank1=0.9710  val_rank1=nan  sim_gain=+0.0162  |delta|=0.1338
+[fl]   round   2/2  rank1=0.9714  val_rank1=nan  sim_gain=+0.0127  |delta|=0.0748
+[fl] federated: rank1=0.9714  tpir@fpir=0.0001=0.5587  tpir@fpir=0.001=0.7720  tpir@fpir=0.01=0.8818  tpir@fpir=0.1=0.9412  ver_auc=0.9389
+[exp]   mu=1     rank1=0.9714  |delta|=0.0748
+[exp] mia: loss-threshold membership inference
+[exp]   holding back 87611 images of training identities; retraining for 2 rounds
+[fl] federated: FedProx, 5 nodes, 2 rounds, 5 sampled per round
+/home/ubuntu/fedmps/fedmps/fl/loop.py:384: RuntimeWarning: Mean of empty slice
+  "mean_val_loss": float(np.nanmean(
+/home/ubuntu/fedmps/fedmps/fl/loop.py:386: RuntimeWarning: Mean of empty slice
+  "mean_sim_gain": float(np.nanmean(
+[fl]   round   1/2  rank1=0.9704  val_rank1=nan  sim_gain=+nan  |delta|=0.1611
+[fl]   round   2/2  rank1=0.9708  val_rank1=nan  sim_gain=+nan  |delta|=0.0862
+[fl] federated: rank1=0.9708  tpir@fpir=0.0001=0.5626  tpir@fpir=0.001=0.7715  tpir@fpir=0.01=0.8825  tpir@fpir=0.1=0.9409  ver_auc=0.9389
+[exp]   sample level    AUC = 0.5001  (87611 per class)
+[exp]   identity level  AUC = 0.5679  (190646 per class)
+
+[run] wrote /home/ubuntu/fedmps/results/sidetest_vgghq.json
+
+[run] no warnings raised
+exit 0 2026-10-25T14:32:41Z

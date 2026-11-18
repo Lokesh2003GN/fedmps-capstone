@@ -1,0 +1,880 @@
+final start 2026-10-25T14:33:05Z
+[run] reading artefacts from /home/ubuntu/fedmps/artifacts_vgghq
+images        : 628699
+identities    : 4605
+backbone      : insightface
+nodes         : 5
+test images   : 190646
+extra non-mates: 0
+  node_0:  322 ids  42677 train     1 val
+  node_1:  483 ids  67576 train     1 val
+  node_2:  644 ids  90003 train     1 val
+  node_3:  805 ids  106408 train     1 val
+  node_4:  969 ids  131384 train     1 val
+
+[run] experiments: three_way, dp_sweep, masking, templates, fedprox, mia
+[exp] three_way: local-only vs federated vs centralised
+[fl] gallery 691 identities x 3 enrolment photo(s) | 30540 mate probes x 3 frame(s) | 31850 non-mate probes | 200000 verification pairs
+[fl] scoring layer: centering + rotation
+[fl] no adapter (frozen backbone alone): rank1=0.9733  tpir@fpir=0.0001=0.6369  tpir@fpir=0.001=0.8357  tpir@fpir=0.01=0.9054  tpir@fpir=0.1=0.9487  ver_auc=0.9389
+[fl] local_only: 5 nodes x 200 epochs each
+[fl]   node_0: n=42678 rank1=0.9472  sim_gain=+0.1935
+[fl]   node_1: n=67577 rank1=0.9665  sim_gain=+0.1542
+[fl]   node_2: n=90004 rank1=0.9653  sim_gain=+0.0529
+[fl]   node_3: n=106409 rank1=0.9622  sim_gain=+0.0663
+[fl]   node_4: n=131385 rank1=0.9689  sim_gain=+0.0494
+[fl] local_only: mean rank1=0.9620 (worst 0.9472, best 0.9689)
+[fl] federated: FedProx, 5 nodes, 200 rounds, 5 sampled per round
+[fl]   round   1/200  rank1=0.9736  val_rank1=nan  sim_gain=+0.0273  |delta|=0.1781
+[fl]   round   2/200  rank1=0.9739  val_rank1=nan  sim_gain=+0.0124  |delta|=0.1450
+[fl]   round   3/200  rank1=0.9741  val_rank1=nan  sim_gain=+0.0313  |delta|=0.1329
+[fl]   round   4/200  rank1=0.9742  val_rank1=nan  sim_gain=+0.0212  |delta|=0.1275
+[fl]   round   5/200  rank1=0.9740  val_rank1=nan  sim_gain=+0.0334  |delta|=0.1243
+[fl]   round   6/200  rank1=0.9744  val_rank1=nan  sim_gain=+0.0170  |delta|=0.1261
+[fl]   round   7/200  rank1=0.9738  val_rank1=nan  sim_gain=+0.0214  |delta|=0.1229
+[fl]   round   8/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0331  |delta|=0.1230
+[fl]   round   9/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0308  |delta|=0.1207
+[fl]   round  10/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0451  |delta|=0.1229
+[fl]   round  11/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0221  |delta|=0.1238
+[fl]   round  12/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0325  |delta|=0.1218
+[fl]   round  13/200  rank1=0.9737  val_rank1=nan  sim_gain=+0.0354  |delta|=0.1230
+[fl]   round  14/200  rank1=0.9739  val_rank1=nan  sim_gain=+0.0376  |delta|=0.1224
+[fl]   round  15/200  rank1=0.9740  val_rank1=nan  sim_gain=+0.0438  |delta|=0.1226
+[fl]   round  16/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0285  |delta|=0.1221
+[fl]   round  17/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0251  |delta|=0.1204
+[fl]   round  18/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0397  |delta|=0.1210
+[fl]   round  19/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0356  |delta|=0.1200
+[fl]   round  20/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0251  |delta|=0.1195
+[fl]   round  21/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0515  |delta|=0.1213
+[fl]   round  22/200  rank1=0.9736  val_rank1=nan  sim_gain=+0.0369  |delta|=0.1188
+[fl]   round  23/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0355  |delta|=0.1193
+[fl]   round  24/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0287  |delta|=0.1189
+[fl]   round  25/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0401  |delta|=0.1190
+[fl]   round  26/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0264  |delta|=0.1180
+[fl]   round  27/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0360  |delta|=0.1177
+[fl]   round  28/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0303  |delta|=0.1196
+[fl]   round  29/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0207  |delta|=0.1184
+[fl]   round  30/200  rank1=0.9728  val_rank1=nan  sim_gain=+0.0206  |delta|=0.1175
+[fl]   round  31/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0347  |delta|=0.1160
+[fl]   round  32/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0291  |delta|=0.1156
+[fl]   round  33/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0226  |delta|=0.1168
+[fl]   round  34/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0400  |delta|=0.1155
+[fl]   round  35/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0260  |delta|=0.1143
+[fl]   round  36/200  rank1=0.9738  val_rank1=nan  sim_gain=+0.0231  |delta|=0.1150
+[fl]   round  37/200  rank1=0.9736  val_rank1=nan  sim_gain=+0.0269  |delta|=0.1138
+[fl]   round  38/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0234  |delta|=0.1127
+[fl]   round  39/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0256  |delta|=0.1139
+[fl]   round  40/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0259  |delta|=0.1133
+[fl]   round  41/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0260  |delta|=0.1130
+[fl]   round  42/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0344  |delta|=0.1141
+[fl]   round  43/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0251  |delta|=0.1138
+[fl]   round  44/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0300  |delta|=0.1120
+[fl]   round  45/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0282  |delta|=0.1110
+[fl]   round  46/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0246  |delta|=0.1088
+[fl]   round  47/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0337  |delta|=0.1088
+[fl]   round  48/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0304  |delta|=0.1093
+[fl]   round  49/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0238  |delta|=0.1086
+[fl]   round  50/200  rank1=0.9736  val_rank1=nan  sim_gain=+0.0313  |delta|=0.1097
+[fl]   round  51/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0282  |delta|=0.1071
+[fl]   round  52/200  rank1=0.9729  val_rank1=nan  sim_gain=+0.0379  |delta|=0.1070
+[fl]   round  53/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0312  |delta|=0.1076
+[fl]   round  54/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0326  |delta|=0.1082
+[fl]   round  55/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0276  |delta|=0.1056
+[fl]   round  56/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0326  |delta|=0.1057
+[fl]   round  57/200  rank1=0.9737  val_rank1=nan  sim_gain=+0.0324  |delta|=0.1065
+[fl]   round  58/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0245  |delta|=0.1049
+[fl]   round  59/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0390  |delta|=0.1038
+[fl]   round  60/200  rank1=0.9736  val_rank1=nan  sim_gain=+0.0396  |delta|=0.1027
+[fl]   round  61/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0341  |delta|=0.1035
+[fl]   round  62/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0329  |delta|=0.1015
+[fl]   round  63/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0265  |delta|=0.1022
+[fl]   round  64/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0327  |delta|=0.1003
+[fl]   round  65/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0384  |delta|=0.0998
+[fl]   round  66/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0362  |delta|=0.1002
+[fl]   round  67/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0272  |delta|=0.0992
+[fl]   round  68/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0276  |delta|=0.0980
+[fl]   round  69/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0310  |delta|=0.0959
+[fl]   round  70/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0323  |delta|=0.0967
+[fl]   round  71/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0248  |delta|=0.0974
+[fl]   round  72/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0371  |delta|=0.0958
+[fl]   round  73/200  rank1=0.9728  val_rank1=nan  sim_gain=+0.0265  |delta|=0.0953
+[fl]   round  74/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0308  |delta|=0.0942
+[fl]   round  75/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0325  |delta|=0.0921
+[fl]   round  76/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0277  |delta|=0.0931
+[fl]   round  77/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0283  |delta|=0.0908
+[fl]   round  78/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0346  |delta|=0.0902
+[fl]   round  79/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0333  |delta|=0.0902
+[fl]   round  80/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0286  |delta|=0.0912
+[fl]   round  81/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0334  |delta|=0.0902
+[fl]   round  82/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0318  |delta|=0.0902
+[fl]   round  83/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0335  |delta|=0.0874
+[fl]   round  84/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0301  |delta|=0.0881
+[fl]   round  85/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0304  |delta|=0.0875
+[fl]   round  86/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0366  |delta|=0.0851
+[fl]   round  87/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0388  |delta|=0.0833
+[fl]   round  88/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0329  |delta|=0.0836
+[fl]   round  89/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0316  |delta|=0.0813
+[fl]   round  90/200  rank1=0.9736  val_rank1=nan  sim_gain=+0.0282  |delta|=0.0816
+[fl]   round  91/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0263  |delta|=0.0808
+[fl]   round  92/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0255  |delta|=0.0817
+[fl]   round  93/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0364  |delta|=0.0796
+[fl]   round  94/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0288  |delta|=0.0813
+[fl]   round  95/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0407  |delta|=0.0791
+[fl]   round  96/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0328  |delta|=0.0777
+[fl]   round  97/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0337  |delta|=0.0758
+[fl]   round  98/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0318  |delta|=0.0762
+[fl]   round  99/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0303  |delta|=0.0753
+[fl]   round 100/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0287  |delta|=0.0744
+[fl]   round 101/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0321  |delta|=0.0730
+[fl]   round 102/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0284  |delta|=0.0737
+[fl]   round 103/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0408  |delta|=0.0724
+[fl]   round 104/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0349  |delta|=0.0705
+[fl]   round 105/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0321  |delta|=0.0706
+[fl]   round 106/200  rank1=0.9736  val_rank1=nan  sim_gain=+0.0313  |delta|=0.0687
+[fl]   round 107/200  rank1=0.9737  val_rank1=nan  sim_gain=+0.0315  |delta|=0.0673
+[fl]   round 108/200  rank1=0.9736  val_rank1=nan  sim_gain=+0.0330  |delta|=0.0669
+[fl]   round 109/200  rank1=0.9736  val_rank1=nan  sim_gain=+0.0353  |delta|=0.0663
+[fl]   round 110/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0358  |delta|=0.0653
+[fl]   round 111/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0374  |delta|=0.0644
+[fl]   round 112/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0336  |delta|=0.0629
+[fl]   round 113/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0310  |delta|=0.0637
+[fl]   round 114/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0307  |delta|=0.0622
+[fl]   round 115/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0337  |delta|=0.0631
+[fl]   round 116/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0351  |delta|=0.0594
+[fl]   round 117/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0337  |delta|=0.0597
+[fl]   round 118/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0338  |delta|=0.0585
+[fl]   round 119/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0339  |delta|=0.0571
+[fl]   round 120/200  rank1=0.9728  val_rank1=nan  sim_gain=+0.0368  |delta|=0.0576
+[fl]   round 121/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0344  |delta|=0.0555
+[fl]   round 122/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0317  |delta|=0.0551
+[fl]   round 123/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0364  |delta|=0.0541
+[fl]   round 124/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0339  |delta|=0.0534
+[fl]   round 125/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0312  |delta|=0.0526
+[fl]   round 126/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0309  |delta|=0.0515
+[fl]   round 127/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0357  |delta|=0.0504
+[fl]   round 128/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0282  |delta|=0.0498
+[fl]   round 129/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0290  |delta|=0.0487
+[fl]   round 130/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0285  |delta|=0.0476
+[fl]   round 131/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0281  |delta|=0.0470
+[fl]   round 132/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0336  |delta|=0.0460
+[fl]   round 133/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0298  |delta|=0.0454
+[fl]   round 134/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0285  |delta|=0.0444
+[fl]   round 135/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0305  |delta|=0.0436
+[fl]   round 136/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0323  |delta|=0.0426
+[fl]   round 137/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0323  |delta|=0.0415
+[fl]   round 138/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0359  |delta|=0.0408
+[fl]   round 139/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0339  |delta|=0.0398
+[fl]   round 140/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0360  |delta|=0.0389
+[fl]   round 141/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0327  |delta|=0.0382
+[fl]   round 142/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0347  |delta|=0.0368
+[fl]   round 143/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0330  |delta|=0.0361
+[fl]   round 144/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0321  |delta|=0.0351
+[fl]   round 145/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0320  |delta|=0.0341
+[fl]   round 146/200  rank1=0.9729  val_rank1=nan  sim_gain=+0.0323  |delta|=0.0338
+[fl]   round 147/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0324  |delta|=0.0321
+[fl]   round 148/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0323  |delta|=0.0318
+[fl]   round 149/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0298  |delta|=0.0310
+[fl]   round 150/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0293  |delta|=0.0300
+[fl]   round 151/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0277  |delta|=0.0287
+[fl]   round 152/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0300  |delta|=0.0278
+[fl]   round 153/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0287  |delta|=0.0272
+[fl]   round 154/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0279  |delta|=0.0265
+[fl]   round 155/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0310  |delta|=0.0255
+[fl]   round 156/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0293  |delta|=0.0242
+[fl]   round 157/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0299  |delta|=0.0238
+[fl]   round 158/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0304  |delta|=0.0225
+[fl]   round 159/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0290  |delta|=0.0222
+[fl]   round 160/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0287  |delta|=0.0215
+[fl]   round 161/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0275  |delta|=0.0206
+[fl]   round 162/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0285  |delta|=0.0195
+[fl]   round 163/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0294  |delta|=0.0188
+[fl]   round 164/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0291  |delta|=0.0179
+[fl]   round 165/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0288  |delta|=0.0174
+[fl]   round 166/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0291  |delta|=0.0164
+[fl]   round 167/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0277  |delta|=0.0159
+[fl]   round 168/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0279  |delta|=0.0149
+[fl]   round 169/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0275  |delta|=0.0141
+[fl]   round 170/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0288  |delta|=0.0134
+[fl]   round 171/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0294  |delta|=0.0125
+[fl]   round 172/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0275  |delta|=0.0120
+[fl]   round 173/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0275  |delta|=0.0112
+[fl]   round 174/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0281  |delta|=0.0105
+[fl]   round 175/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0278  |delta|=0.0100
+[fl]   round 176/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0283  |delta|=0.0091
+[fl]   round 177/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0275  |delta|=0.0086
+[fl]   round 178/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0272  |delta|=0.0080
+[fl]   round 179/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0278  |delta|=0.0073
+[fl]   round 180/200  rank1=0.9735  val_rank1=nan  sim_gain=+0.0279  |delta|=0.0067
+[fl]   round 181/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0281  |delta|=0.0061
+[fl]   round 182/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0279  |delta|=0.0056
+[fl]   round 183/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0274  |delta|=0.0050
+[fl]   round 184/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0276  |delta|=0.0045
+[fl]   round 185/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0277  |delta|=0.0041
+[fl]   round 186/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0274  |delta|=0.0037
+[fl]   round 187/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0275  |delta|=0.0032
+[fl]   round 188/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0274  |delta|=0.0028
+[fl]   round 189/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0274  |delta|=0.0024
+[fl]   round 190/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0273  |delta|=0.0020
+[fl]   round 191/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0273  |delta|=0.0017
+[fl]   round 192/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0273  |delta|=0.0014
+[fl]   round 193/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0273  |delta|=0.0011
+[fl]   round 194/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0272  |delta|=0.0009
+[fl]   round 195/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0273  |delta|=0.0006
+[fl]   round 196/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0272  |delta|=0.0005
+[fl]   round 197/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0272  |delta|=0.0003
+[fl]   round 198/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0272  |delta|=0.0002
+[fl]   round 199/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0272  |delta|=0.0001
+[fl]   round 200/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0272  |delta|=0.0000
+[fl] federated: rank1=0.9734  tpir@fpir=0.0001=0.6473  tpir@fpir=0.001=0.8363  tpir@fpir=0.01=0.9107  tpir@fpir=0.1=0.9532  ver_auc=0.9402
+[fl] centralised: 438053 images, 3223 identities, pooled into one client (200 rounds x 1 epoch, mu=0.3)
+[fl] federated: FedProx, 1 nodes, 200 rounds, 1 sampled per round
+[fl]   round   1/200  rank1=0.9726  val_rank1=nan  sim_gain=+0.0152  |delta|=0.4531
+[fl]   round   2/200  rank1=0.9721  val_rank1=nan  sim_gain=+0.0178  |delta|=0.3848
+[fl]   round   3/200  rank1=0.9718  val_rank1=nan  sim_gain=+0.0225  |delta|=0.3765
+[fl]   round   4/200  rank1=0.9712  val_rank1=nan  sim_gain=+0.0145  |delta|=0.3679
+[fl]   round   5/200  rank1=0.9721  val_rank1=nan  sim_gain=+0.0224  |delta|=0.3710
+[fl]   round   6/200  rank1=0.9714  val_rank1=nan  sim_gain=+0.0198  |delta|=0.3670
+[fl]   round   7/200  rank1=0.9719  val_rank1=nan  sim_gain=+0.0240  |delta|=0.3721
+[fl]   round   8/200  rank1=0.9718  val_rank1=nan  sim_gain=+0.0156  |delta|=0.3676
+[fl]   round   9/200  rank1=0.9712  val_rank1=nan  sim_gain=+0.0206  |delta|=0.3662
+[fl]   round  10/200  rank1=0.9713  val_rank1=nan  sim_gain=+0.0130  |delta|=0.3675
+[fl]   round  11/200  rank1=0.9704  val_rank1=nan  sim_gain=+0.0249  |delta|=0.3647
+[fl]   round  12/200  rank1=0.9712  val_rank1=nan  sim_gain=+0.0246  |delta|=0.3650
+[fl]   round  13/200  rank1=0.9714  val_rank1=nan  sim_gain=+0.0233  |delta|=0.3632
+[fl]   round  14/200  rank1=0.9715  val_rank1=nan  sim_gain=+0.0294  |delta|=0.3605
+[fl]   round  15/200  rank1=0.9713  val_rank1=nan  sim_gain=+0.0314  |delta|=0.3589
+[fl]   round  16/200  rank1=0.9713  val_rank1=nan  sim_gain=+0.0260  |delta|=0.3578
+[fl]   round  17/200  rank1=0.9714  val_rank1=nan  sim_gain=+0.0186  |delta|=0.3536
+[fl]   round  18/200  rank1=0.9717  val_rank1=nan  sim_gain=+0.0247  |delta|=0.3524
+[fl]   round  19/200  rank1=0.9719  val_rank1=nan  sim_gain=+0.0268  |delta|=0.3496
+[fl]   round  20/200  rank1=0.9719  val_rank1=nan  sim_gain=+0.0161  |delta|=0.3475
+[fl]   round  21/200  rank1=0.9718  val_rank1=nan  sim_gain=+0.0186  |delta|=0.3450
+[fl]   round  22/200  rank1=0.9717  val_rank1=nan  sim_gain=+0.0229  |delta|=0.3395
+[fl]   round  23/200  rank1=0.9720  val_rank1=nan  sim_gain=+0.0315  |delta|=0.3403
+[fl]   round  24/200  rank1=0.9720  val_rank1=nan  sim_gain=+0.0207  |delta|=0.3398
+[fl]   round  25/200  rank1=0.9718  val_rank1=nan  sim_gain=+0.0186  |delta|=0.3345
+[fl]   round  26/200  rank1=0.9716  val_rank1=nan  sim_gain=+0.0274  |delta|=0.3304
+[fl]   round  27/200  rank1=0.9723  val_rank1=nan  sim_gain=+0.0258  |delta|=0.3301
+[fl]   round  28/200  rank1=0.9724  val_rank1=nan  sim_gain=+0.0204  |delta|=0.3278
+[fl]   round  29/200  rank1=0.9729  val_rank1=nan  sim_gain=+0.0221  |delta|=0.3245
+[fl]   round  30/200  rank1=0.9727  val_rank1=nan  sim_gain=+0.0198  |delta|=0.3248
+[fl]   round  31/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0175  |delta|=0.3215
+[fl]   round  32/200  rank1=0.9728  val_rank1=nan  sim_gain=+0.0189  |delta|=0.3183
+[fl]   round  33/200  rank1=0.9726  val_rank1=nan  sim_gain=+0.0180  |delta|=0.3197
+[fl]   round  34/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0201  |delta|=0.3132
+[fl]   round  35/200  rank1=0.9729  val_rank1=nan  sim_gain=+0.0188  |delta|=0.3112
+[fl]   round  36/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0197  |delta|=0.3121
+[fl]   round  37/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0225  |delta|=0.3078
+[fl]   round  38/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0225  |delta|=0.3046
+[fl]   round  39/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0293  |delta|=0.3015
+[fl]   round  40/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0289  |delta|=0.3012
+[fl]   round  41/200  rank1=0.9728  val_rank1=nan  sim_gain=+0.0212  |delta|=0.2980
+[fl]   round  42/200  rank1=0.9729  val_rank1=nan  sim_gain=+0.0210  |delta|=0.2976
+[fl]   round  43/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0214  |delta|=0.2967
+[fl]   round  44/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0183  |delta|=0.2919
+[fl]   round  45/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0166  |delta|=0.2918
+[fl]   round  46/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0229  |delta|=0.2870
+[fl]   round  47/200  rank1=0.9729  val_rank1=nan  sim_gain=+0.0191  |delta|=0.2870
+[fl]   round  48/200  rank1=0.9726  val_rank1=nan  sim_gain=+0.0193  |delta|=0.2840
+[fl]   round  49/200  rank1=0.9725  val_rank1=nan  sim_gain=+0.0231  |delta|=0.2845
+[fl]   round  50/200  rank1=0.9725  val_rank1=nan  sim_gain=+0.0241  |delta|=0.2796
+[fl]   round  51/200  rank1=0.9722  val_rank1=nan  sim_gain=+0.0224  |delta|=0.2765
+[fl]   round  52/200  rank1=0.9724  val_rank1=nan  sim_gain=+0.0219  |delta|=0.2740
+[fl]   round  53/200  rank1=0.9720  val_rank1=nan  sim_gain=+0.0253  |delta|=0.2727
+[fl]   round  54/200  rank1=0.9727  val_rank1=nan  sim_gain=+0.0253  |delta|=0.2727
+[fl]   round  55/200  rank1=0.9726  val_rank1=nan  sim_gain=+0.0267  |delta|=0.2692
+[fl]   round  56/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0260  |delta|=0.2708
+[fl]   round  57/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0218  |delta|=0.2665
+[fl]   round  58/200  rank1=0.9729  val_rank1=nan  sim_gain=+0.0232  |delta|=0.2644
+[fl]   round  59/200  rank1=0.9729  val_rank1=nan  sim_gain=+0.0191  |delta|=0.2626
+[fl]   round  60/200  rank1=0.9729  val_rank1=nan  sim_gain=+0.0181  |delta|=0.2622
+[fl]   round  61/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0189  |delta|=0.2591
+[fl]   round  62/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0244  |delta|=0.2612
+[fl]   round  63/200  rank1=0.9727  val_rank1=nan  sim_gain=+0.0191  |delta|=0.2595
+[fl]   round  64/200  rank1=0.9728  val_rank1=nan  sim_gain=+0.0187  |delta|=0.2570
+[fl]   round  65/200  rank1=0.9729  val_rank1=nan  sim_gain=+0.0187  |delta|=0.2538
+[fl]   round  66/200  rank1=0.9727  val_rank1=nan  sim_gain=+0.0223  |delta|=0.2532
+[fl]   round  67/200  rank1=0.9729  val_rank1=nan  sim_gain=+0.0230  |delta|=0.2497
+[fl]   round  68/200  rank1=0.9729  val_rank1=nan  sim_gain=+0.0239  |delta|=0.2474
+[fl]   round  69/200  rank1=0.9729  val_rank1=nan  sim_gain=+0.0201  |delta|=0.2465
+[fl]   round  70/200  rank1=0.9726  val_rank1=nan  sim_gain=+0.0247  |delta|=0.2441
+[fl]   round  71/200  rank1=0.9729  val_rank1=nan  sim_gain=+0.0248  |delta|=0.2440
+[fl]   round  72/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0243  |delta|=0.2412
+[fl]   round  73/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0255  |delta|=0.2405
+[fl]   round  74/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0242  |delta|=0.2386
+[fl]   round  75/200  rank1=0.9728  val_rank1=nan  sim_gain=+0.0227  |delta|=0.2340
+[fl]   round  76/200  rank1=0.9728  val_rank1=nan  sim_gain=+0.0233  |delta|=0.2353
+[fl]   round  77/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0230  |delta|=0.2340
+[fl]   round  78/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0212  |delta|=0.2303
+[fl]   round  79/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0225  |delta|=0.2288
+[fl]   round  80/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0223  |delta|=0.2258
+[fl]   round  81/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0222  |delta|=0.2291
+[fl]   round  82/200  rank1=0.9726  val_rank1=nan  sim_gain=+0.0217  |delta|=0.2238
+[fl]   round  83/200  rank1=0.9727  val_rank1=nan  sim_gain=+0.0236  |delta|=0.2203
+[fl]   round  84/200  rank1=0.9728  val_rank1=nan  sim_gain=+0.0228  |delta|=0.2193
+[fl]   round  85/200  rank1=0.9727  val_rank1=nan  sim_gain=+0.0247  |delta|=0.2202
+[fl]   round  86/200  rank1=0.9728  val_rank1=nan  sim_gain=+0.0213  |delta|=0.2174
+[fl]   round  87/200  rank1=0.9728  val_rank1=nan  sim_gain=+0.0218  |delta|=0.2170
+[fl]   round  88/200  rank1=0.9728  val_rank1=nan  sim_gain=+0.0214  |delta|=0.2140
+[fl]   round  89/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0220  |delta|=0.2129
+[fl]   round  90/200  rank1=0.9729  val_rank1=nan  sim_gain=+0.0251  |delta|=0.2121
+[fl]   round  91/200  rank1=0.9728  val_rank1=nan  sim_gain=+0.0243  |delta|=0.2092
+[fl]   round  92/200  rank1=0.9728  val_rank1=nan  sim_gain=+0.0244  |delta|=0.2076
+[fl]   round  93/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0236  |delta|=0.2075
+[fl]   round  94/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0214  |delta|=0.2034
+[fl]   round  95/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0239  |delta|=0.2018
+[fl]   round  96/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0245  |delta|=0.2026
+[fl]   round  97/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0247  |delta|=0.1992
+[fl]   round  98/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0265  |delta|=0.1987
+[fl]   round  99/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0272  |delta|=0.1953
+[fl]   round 100/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0267  |delta|=0.1966
+[fl]   round 101/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0262  |delta|=0.1915
+[fl]   round 102/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0272  |delta|=0.1914
+[fl]   round 103/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0274  |delta|=0.1885
+[fl]   round 104/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0259  |delta|=0.1876
+[fl]   round 105/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0251  |delta|=0.1844
+[fl]   round 106/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0254  |delta|=0.1818
+[fl]   round 107/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0269  |delta|=0.1804
+[fl]   round 108/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0271  |delta|=0.1797
+[fl]   round 109/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0290  |delta|=0.1783
+[fl]   round 110/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0261  |delta|=0.1743
+[fl]   round 111/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0292  |delta|=0.1725
+[fl]   round 112/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0276  |delta|=0.1716
+[fl]   round 113/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0267  |delta|=0.1715
+[fl]   round 114/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0288  |delta|=0.1683
+[fl]   round 115/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0281  |delta|=0.1670
+[fl]   round 116/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0291  |delta|=0.1653
+[fl]   round 117/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0274  |delta|=0.1642
+[fl]   round 118/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0269  |delta|=0.1625
+[fl]   round 119/200  rank1=0.9728  val_rank1=nan  sim_gain=+0.0249  |delta|=0.1586
+[fl]   round 120/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0284  |delta|=0.1556
+[fl]   round 121/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0279  |delta|=0.1532
+[fl]   round 122/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0255  |delta|=0.1536
+[fl]   round 123/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0238  |delta|=0.1513
+[fl]   round 124/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0242  |delta|=0.1492
+[fl]   round 125/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0244  |delta|=0.1472
+[fl]   round 126/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0249  |delta|=0.1434
+[fl]   round 127/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0249  |delta|=0.1445
+[fl]   round 128/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0250  |delta|=0.1398
+[fl]   round 129/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0247  |delta|=0.1386
+[fl]   round 130/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0246  |delta|=0.1361
+[fl]   round 131/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0234  |delta|=0.1349
+[fl]   round 132/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0243  |delta|=0.1319
+[fl]   round 133/200  rank1=0.9727  val_rank1=nan  sim_gain=+0.0256  |delta|=0.1308
+[fl]   round 134/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0249  |delta|=0.1282
+[fl]   round 135/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0250  |delta|=0.1264
+[fl]   round 136/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0252  |delta|=0.1246
+[fl]   round 137/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0265  |delta|=0.1222
+[fl]   round 138/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0268  |delta|=0.1202
+[fl]   round 139/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0274  |delta|=0.1171
+[fl]   round 140/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0270  |delta|=0.1152
+[fl]   round 141/200  rank1=0.9729  val_rank1=nan  sim_gain=+0.0256  |delta|=0.1134
+[fl]   round 142/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0261  |delta|=0.1117
+[fl]   round 143/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0265  |delta|=0.1096
+[fl]   round 144/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0271  |delta|=0.1076
+[fl]   round 145/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0266  |delta|=0.1056
+[fl]   round 146/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0261  |delta|=0.1028
+[fl]   round 147/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0262  |delta|=0.1002
+[fl]   round 148/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0256  |delta|=0.0983
+[fl]   round 149/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0265  |delta|=0.0967
+[fl]   round 150/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0264  |delta|=0.0937
+[fl]   round 151/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0276  |delta|=0.0916
+[fl]   round 152/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0277  |delta|=0.0892
+[fl]   round 153/200  rank1=0.9729  val_rank1=nan  sim_gain=+0.0272  |delta|=0.0863
+[fl]   round 154/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0262  |delta|=0.0842
+[fl]   round 155/200  rank1=0.9728  val_rank1=nan  sim_gain=+0.0267  |delta|=0.0830
+[fl]   round 156/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0271  |delta|=0.0799
+[fl]   round 157/200  rank1=0.9729  val_rank1=nan  sim_gain=+0.0265  |delta|=0.0778
+[fl]   round 158/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0272  |delta|=0.0751
+[fl]   round 159/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0272  |delta|=0.0723
+[fl]   round 160/200  rank1=0.9730  val_rank1=nan  sim_gain=+0.0267  |delta|=0.0702
+[fl]   round 161/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0274  |delta|=0.0684
+[fl]   round 162/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0276  |delta|=0.0662
+[fl]   round 163/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0268  |delta|=0.0635
+[fl]   round 164/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0278  |delta|=0.0608
+[fl]   round 165/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0268  |delta|=0.0589
+[fl]   round 166/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0264  |delta|=0.0566
+[fl]   round 167/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0266  |delta|=0.0545
+[fl]   round 168/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0263  |delta|=0.0516
+[fl]   round 169/200  rank1=0.9731  val_rank1=nan  sim_gain=+0.0264  |delta|=0.0500
+[fl]   round 170/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0266  |delta|=0.0480
+[fl]   round 171/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0263  |delta|=0.0452
+[fl]   round 172/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0266  |delta|=0.0429
+[fl]   round 173/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0267  |delta|=0.0410
+[fl]   round 174/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0266  |delta|=0.0386
+[fl]   round 175/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0261  |delta|=0.0365
+[fl]   round 176/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0262  |delta|=0.0344
+[fl]   round 177/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0265  |delta|=0.0324
+[fl]   round 178/200  rank1=0.9734  val_rank1=nan  sim_gain=+0.0264  |delta|=0.0301
+[fl]   round 179/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0263  |delta|=0.0282
+[fl]   round 180/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0263  |delta|=0.0261
+[fl]   round 181/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0263  |delta|=0.0241
+[fl]   round 182/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0262  |delta|=0.0222
+[fl]   round 183/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0264  |delta|=0.0205
+[fl]   round 184/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0261  |delta|=0.0187
+[fl]   round 185/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0262  |delta|=0.0168
+[fl]   round 186/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0261  |delta|=0.0150
+[fl]   round 187/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0261  |delta|=0.0134
+[fl]   round 188/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0261  |delta|=0.0118
+[fl]   round 189/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0261  |delta|=0.0101
+[fl]   round 190/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0261  |delta|=0.0087
+[fl]   round 191/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0261  |delta|=0.0074
+[fl]   round 192/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0262  |delta|=0.0061
+[fl]   round 193/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0263  |delta|=0.0048
+[fl]   round 194/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0262  |delta|=0.0037
+[fl]   round 195/200  rank1=0.9732  val_rank1=nan  sim_gain=+0.0262  |delta|=0.0028
+[fl]   round 196/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0263  |delta|=0.0020
+[fl]   round 197/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0263  |delta|=0.0013
+[fl]   round 198/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0263  |delta|=0.0007
+[fl]   round 199/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0263  |delta|=0.0003
+[fl]   round 200/200  rank1=0.9733  val_rank1=nan  sim_gain=+0.0263  |delta|=0.0001
+[fl] federated: rank1=0.9733  tpir@fpir=0.0001=0.6065  tpir@fpir=0.001=0.8312  tpir@fpir=0.01=0.9080  tpir@fpir=0.1=0.9520  ver_auc=0.9403
+[fl] centralised: rank1=0.9733  tpir@fpir=0.0001=0.6065  tpir@fpir=0.001=0.8312  tpir@fpir=0.01=0.9080  tpir@fpir=0.1=0.9520  ver_auc=0.9403
+
+[fl] three-way comparison, rank-1 on held-out identities
+[fl]   no adapter        0.9733
+[fl]   local only (mean) 0.9620
+[fl]   federated         0.9734   (+0.0114 vs local only)
+[fl]   centralised       0.9733   (-0.0001 headroom remaining)
+
+[fl] WARNING: FEDERATED BEAT CENTRALISED. Check two things, in this order, before concluding anything.
+      (1) Leakage. Confirm no identity and no image index is shared between any node and the held-out set. If they are, the run is invalid.
+      (2) Matched tuning. Centralised is only an upper bound if it is regularised at least as well as the federated arm. An under-regularised baseline overfits and stops bounding anything, which looks identical to leakage in this table but is not. run_centralised trains one pooled client under the same rounds, epochs and proximal term, so this should hold - but if you have changed either arm's hyperparameters independently, re-check it.
+      A small margin after both checks pass is a real, reportable result: averaging across heterogeneous clients is itself a regulariser, and on small non-IID data it can beat pooling.
+
+[fl] saved the federated adapter to /home/ubuntu/fedmps/checkpoints/adapter_final.pt
+[exp] dp_sweep: 5 settings x 30 rounds
+[fl] federated: FedProx, 5 nodes, 3 rounds, 5 sampled per round
+[fl]   round   1/3  rank1=0.9709  val_rank1=nan  sim_gain=+0.0175  |delta|=0.1772
+[fl]   round   2/3  rank1=0.9712  val_rank1=nan  sim_gain=+0.0154  |delta|=0.1209
+[fl]   round   3/3  rank1=0.9713  val_rank1=nan  sim_gain=+0.0168  |delta|=0.0531
+[fl] federated: rank1=0.9713  tpir@fpir=0.0001=0.5512  tpir@fpir=0.001=0.7693  tpir@fpir=0.01=0.8803  tpir@fpir=0.1=0.9415  ver_auc=0.9392
+[exp]   calibrated clip_norm=0.313 from 15 observed updates (median 0.241, p95 0.399) -> 33% clipped
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   1/30  rank1=0.9708  val_rank1=nan  sim_gain=+0.0206  |delta|=0.1538
+[fl]   round   2/30  rank1=0.9709  val_rank1=nan  sim_gain=+0.0131  |delta|=0.1312
+[fl]   round   3/30  rank1=0.9710  val_rank1=nan  sim_gain=+0.0245  |delta|=0.1215
+[fl]   round   4/30  rank1=0.9709  val_rank1=nan  sim_gain=+0.0146  |delta|=0.1166
+[fl]   round   5/30  rank1=0.9707  val_rank1=nan  sim_gain=+0.0182  |delta|=0.1134
+[fl]   round   6/30  rank1=0.9707  val_rank1=nan  sim_gain=+0.0166  |delta|=0.1141
+[fl]   round   7/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0164  |delta|=0.1104
+[fl]   round   8/30  rank1=0.9708  val_rank1=nan  sim_gain=+0.0228  |delta|=0.1102
+[fl]   round   9/30  rank1=0.9706  val_rank1=nan  sim_gain=+0.0232  |delta|=0.1067
+[fl]   round  10/30  rank1=0.9702  val_rank1=nan  sim_gain=+0.0341  |delta|=0.1059
+[fl]   round  11/30  rank1=0.9703  val_rank1=nan  sim_gain=+0.0110  |delta|=0.1031
+[fl]   round  12/30  rank1=0.9704  val_rank1=nan  sim_gain=+0.0243  |delta|=0.0977
+[fl]   round  13/30  rank1=0.9705  val_rank1=nan  sim_gain=+0.0248  |delta|=0.0933
+[fl]   round  14/30  rank1=0.9705  val_rank1=nan  sim_gain=+0.0272  |delta|=0.0888
+[fl]   round  15/30  rank1=0.9707  val_rank1=nan  sim_gain=+0.0314  |delta|=0.0834
+[fl]   round  16/30  rank1=0.9706  val_rank1=nan  sim_gain=+0.0297  |delta|=0.0775
+[fl]   round  17/30  rank1=0.9704  val_rank1=nan  sim_gain=+0.0229  |delta|=0.0714
+[fl]   round  18/30  rank1=0.9704  val_rank1=nan  sim_gain=+0.0263  |delta|=0.0659
+[fl]   round  19/30  rank1=0.9707  val_rank1=nan  sim_gain=+0.0257  |delta|=0.0595
+[fl]   round  20/30  rank1=0.9707  val_rank1=nan  sim_gain=+0.0226  |delta|=0.0535
+[fl]   round  21/30  rank1=0.9707  val_rank1=nan  sim_gain=+0.0295  |delta|=0.0481
+[fl]   round  22/30  rank1=0.9708  val_rank1=nan  sim_gain=+0.0255  |delta|=0.0409
+[fl]   round  23/30  rank1=0.9709  val_rank1=nan  sim_gain=+0.0245  |delta|=0.0346
+[fl]   round  24/30  rank1=0.9710  val_rank1=nan  sim_gain=+0.0218  |delta|=0.0286
+[fl]   round  25/30  rank1=0.9708  val_rank1=nan  sim_gain=+0.0236  |delta|=0.0226
+[fl]   round  26/30  rank1=0.9709  val_rank1=nan  sim_gain=+0.0215  |delta|=0.0167
+[fl]   round  27/30  rank1=0.9707  val_rank1=nan  sim_gain=+0.0219  |delta|=0.0113
+[fl]   round  28/30  rank1=0.9707  val_rank1=nan  sim_gain=+0.0209  |delta|=0.0070
+[fl]   round  29/30  rank1=0.9707  val_rank1=nan  sim_gain=+0.0203  |delta|=0.0033
+[fl]   round  30/30  rank1=0.9707  val_rank1=nan  sim_gain=+0.0200  |delta|=0.0009
+[fl] federated: rank1=0.9707  tpir@fpir=0.0001=0.5491  tpir@fpir=0.001=0.7589  tpir@fpir=0.01=0.8824  tpir@fpir=0.1=0.9413  ver_auc=0.9404
+[exp]   sigma=0.00  eps=     inf  rank1=0.9707  clipped=0.0
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   1/30  rank1=0.1885  val_rank1=nan  sim_gain=+0.0248  |delta|=10.1866
+[fl]   round   2/30  rank1=0.1092  val_rank1=nan  sim_gain=-0.2158  |delta|=10.2246
+[fl]   round   3/30  rank1=0.0858  val_rank1=nan  sim_gain=-0.2344  |delta|=10.1995
+[fl]   round   4/30  rank1=0.0760  val_rank1=nan  sim_gain=-0.2457  |delta|=10.2034
+[fl]   round   5/30  rank1=0.0759  val_rank1=nan  sim_gain=-0.2455  |delta|=10.2046
+[fl]   round   6/30  rank1=0.0665  val_rank1=nan  sim_gain=-0.2545  |delta|=10.1900
+[fl]   round   7/30  rank1=0.0709  val_rank1=nan  sim_gain=-0.2663  |delta|=10.2075
+[fl]   round   8/30  rank1=0.0744  val_rank1=nan  sim_gain=-0.2642  |delta|=10.2296
+[fl]   round   9/30  rank1=0.0663  val_rank1=nan  sim_gain=-0.2732  |delta|=10.2115
+[fl]   round  10/30  rank1=0.0716  val_rank1=nan  sim_gain=-0.2818  |delta|=10.1953
+[fl]   round  11/30  rank1=0.0745  val_rank1=nan  sim_gain=-0.2860  |delta|=10.2069
+[fl]   round  12/30  rank1=0.0832  val_rank1=nan  sim_gain=-0.2951  |delta|=10.2052
+[fl]   round  13/30  rank1=0.0891  val_rank1=nan  sim_gain=-0.3029  |delta|=10.1876
+[fl]   round  14/30  rank1=0.0934  val_rank1=nan  sim_gain=-0.2968  |delta|=10.2186
+[fl]   round  15/30  rank1=0.1014  val_rank1=nan  sim_gain=-0.2998  |delta|=10.1900
+[fl]   round  16/30  rank1=0.0982  val_rank1=nan  sim_gain=-0.2896  |delta|=10.1980
+[fl]   round  17/30  rank1=0.0971  val_rank1=nan  sim_gain=-0.2973  |delta|=10.1895
+[fl]   round  18/30  rank1=0.0996  val_rank1=nan  sim_gain=-0.2913  |delta|=10.1982
+[fl]   round  19/30  rank1=0.0997  val_rank1=nan  sim_gain=-0.2959  |delta|=10.2131
+[fl]   round  20/30  rank1=0.0982  val_rank1=nan  sim_gain=-0.2778  |delta|=10.1962
+[fl]   round  21/30  rank1=0.0976  val_rank1=nan  sim_gain=-0.2838  |delta|=10.1893
+[fl]   round  22/30  rank1=0.1060  val_rank1=nan  sim_gain=-0.2870  |delta|=10.2121
+[fl]   round  23/30  rank1=0.1031  val_rank1=nan  sim_gain=-0.2871  |delta|=10.2116
+[fl]   round  24/30  rank1=0.0961  val_rank1=nan  sim_gain=-0.2868  |delta|=10.1971
+[fl]   round  25/30  rank1=0.0895  val_rank1=nan  sim_gain=-0.2820  |delta|=10.2168
+[fl]   round  26/30  rank1=0.0793  val_rank1=nan  sim_gain=-0.2751  |delta|=10.1899
+[fl]   round  27/30  rank1=0.0754  val_rank1=nan  sim_gain=-0.2650  |delta|=10.1670
+[fl]   round  28/30  rank1=0.0670  val_rank1=nan  sim_gain=-0.2644  |delta|=10.1956
+[fl]   round  29/30  rank1=0.0664  val_rank1=nan  sim_gain=-0.2645  |delta|=10.1957
+[fl]   round  30/30  rank1=0.0566  val_rank1=nan  sim_gain=-0.2591  |delta|=10.2044
+[fl] federated: rank1=0.0566  tpir@fpir=0.0001=0.0002  tpir@fpir=0.001=0.0010  tpir@fpir=0.01=0.0044  tpir@fpir=0.1=0.0169  ver_auc=0.7103
+[exp]   sigma=0.30  eps= 251.883  rank1=0.0566  clipped=0.0
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   1/30  rank1=0.0310  val_rank1=nan  sim_gain=+0.0210  |delta|=20.3916
+[fl]   round   2/30  rank1=0.0181  val_rank1=nan  sim_gain=-0.2492  |delta|=20.4049
+[fl]   round   3/30  rank1=0.0128  val_rank1=nan  sim_gain=-0.2684  |delta|=20.4240
+[fl]   round   4/30  rank1=0.0118  val_rank1=nan  sim_gain=-0.2847  |delta|=20.3525
+[fl]   round   5/30  rank1=0.0112  val_rank1=nan  sim_gain=-0.3104  |delta|=20.3887
+[fl]   round   6/30  rank1=0.0125  val_rank1=nan  sim_gain=-0.3210  |delta|=20.4129
+[fl]   round   7/30  rank1=0.0078  val_rank1=nan  sim_gain=-0.3044  |delta|=20.3425
+[fl]   round   8/30  rank1=0.0113  val_rank1=nan  sim_gain=-0.3159  |delta|=20.4119
+[fl]   round   9/30  rank1=0.0087  val_rank1=nan  sim_gain=-0.3143  |delta|=20.4228
+[fl]   round  10/30  rank1=0.0121  val_rank1=nan  sim_gain=-0.3076  |delta|=20.3721
+[fl]   round  11/30  rank1=0.0101  val_rank1=nan  sim_gain=-0.2898  |delta|=20.4017
+[fl]   round  12/30  rank1=0.0096  val_rank1=nan  sim_gain=-0.2875  |delta|=20.4278
+[fl]   round  13/30  rank1=0.0101  val_rank1=nan  sim_gain=-0.2918  |delta|=20.4457
+[fl]   round  14/30  rank1=0.0100  val_rank1=nan  sim_gain=-0.2973  |delta|=20.4155
+[fl]   round  15/30  rank1=0.0079  val_rank1=nan  sim_gain=-0.2880  |delta|=20.4308
+[fl]   round  16/30  rank1=0.0107  val_rank1=nan  sim_gain=-0.2895  |delta|=20.4387
+[fl]   round  17/30  rank1=0.0112  val_rank1=nan  sim_gain=-0.2875  |delta|=20.3833
+[fl]   round  18/30  rank1=0.0115  val_rank1=nan  sim_gain=-0.2793  |delta|=20.3727
+[fl]   round  19/30  rank1=0.0147  val_rank1=nan  sim_gain=-0.2864  |delta|=20.4185
+[fl]   round  20/30  rank1=0.0176  val_rank1=nan  sim_gain=-0.2974  |delta|=20.4234
+[fl]   round  21/30  rank1=0.0172  val_rank1=nan  sim_gain=-0.3118  |delta|=20.4063
+[fl]   round  22/30  rank1=0.0179  val_rank1=nan  sim_gain=-0.3204  |delta|=20.3856
+[fl]   round  23/30  rank1=0.0175  val_rank1=nan  sim_gain=-0.3078  |delta|=20.3971
+[fl]   round  24/30  rank1=0.0191  val_rank1=nan  sim_gain=-0.3089  |delta|=20.3799
+[fl]   round  25/30  rank1=0.0153  val_rank1=nan  sim_gain=-0.3101  |delta|=20.4241
+[fl]   round  26/30  rank1=0.0142  val_rank1=nan  sim_gain=-0.3100  |delta|=20.3548
+[fl]   round  27/30  rank1=0.0138  val_rank1=nan  sim_gain=-0.3093  |delta|=20.3998
+[fl]   round  28/30  rank1=0.0136  val_rank1=nan  sim_gain=-0.3126  |delta|=20.4073
+[fl]   round  29/30  rank1=0.0148  val_rank1=nan  sim_gain=-0.3207  |delta|=20.3758
+[fl]   round  30/30  rank1=0.0118  val_rank1=nan  sim_gain=-0.3283  |delta|=20.3937
+[fl] federated: rank1=0.0118  tpir@fpir=0.0001=0.0000  tpir@fpir=0.001=0.0000  tpir@fpir=0.01=0.0001  tpir@fpir=0.1=0.0019  ver_auc=0.6062
+[exp]   sigma=0.60  eps=  83.616  rank1=0.0118  clipped=0.0
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   1/30  rank1=0.0056  val_rank1=nan  sim_gain=+0.0249  |delta|=33.9299
+[fl]   round   2/30  rank1=0.0069  val_rank1=nan  sim_gain=-0.2880  |delta|=33.9500
+[fl]   round   3/30  rank1=0.0061  val_rank1=nan  sim_gain=-0.2727  |delta|=33.9926
+[fl]   round   4/30  rank1=0.0055  val_rank1=nan  sim_gain=-0.2719  |delta|=33.9816
+[fl]   round   5/30  rank1=0.0044  val_rank1=nan  sim_gain=-0.2886  |delta|=33.9944
+[fl]   round   6/30  rank1=0.0040  val_rank1=nan  sim_gain=-0.2844  |delta|=34.0064
+[fl]   round   7/30  rank1=0.0039  val_rank1=nan  sim_gain=-0.2774  |delta|=33.9773
+[fl]   round   8/30  rank1=0.0039  val_rank1=nan  sim_gain=-0.3035  |delta|=34.0160
+[fl]   round   9/30  rank1=0.0054  val_rank1=nan  sim_gain=-0.3033  |delta|=33.9082
+[fl]   round  10/30  rank1=0.0056  val_rank1=nan  sim_gain=-0.3024  |delta|=33.9060
+[fl]   round  11/30  rank1=0.0052  val_rank1=nan  sim_gain=-0.3137  |delta|=33.9806
+[fl]   round  12/30  rank1=0.0049  val_rank1=nan  sim_gain=-0.3189  |delta|=33.9958
+[fl]   round  13/30  rank1=0.0038  val_rank1=nan  sim_gain=-0.3204  |delta|=34.0192
+[fl]   round  14/30  rank1=0.0034  val_rank1=nan  sim_gain=-0.3156  |delta|=33.9735
+[fl]   round  15/30  rank1=0.0037  val_rank1=nan  sim_gain=-0.3006  |delta|=33.9968
+[fl]   round  16/30  rank1=0.0048  val_rank1=nan  sim_gain=-0.2991  |delta|=33.9356
+[fl]   round  17/30  rank1=0.0043  val_rank1=nan  sim_gain=-0.3067  |delta|=33.9623
+[fl]   round  18/30  rank1=0.0028  val_rank1=nan  sim_gain=-0.3146  |delta|=33.9985
+[fl]   round  19/30  rank1=0.0023  val_rank1=nan  sim_gain=-0.3155  |delta|=34.0243
+[fl]   round  20/30  rank1=0.0035  val_rank1=nan  sim_gain=-0.3216  |delta|=33.9888
+[fl]   round  21/30  rank1=0.0036  val_rank1=nan  sim_gain=-0.3204  |delta|=34.0329
+[fl]   round  22/30  rank1=0.0039  val_rank1=nan  sim_gain=-0.3257  |delta|=33.9616
+[fl]   round  23/30  rank1=0.0037  val_rank1=nan  sim_gain=-0.3150  |delta|=33.9422
+[fl]   round  24/30  rank1=0.0040  val_rank1=nan  sim_gain=-0.3288  |delta|=33.9611
+[fl]   round  25/30  rank1=0.0042  val_rank1=nan  sim_gain=-0.3305  |delta|=34.0303
+[fl]   round  26/30  rank1=0.0040  val_rank1=nan  sim_gain=-0.3321  |delta|=33.9019
+[fl]   round  27/30  rank1=0.0050  val_rank1=nan  sim_gain=-0.3267  |delta|=34.0496
+[fl]   round  28/30  rank1=0.0043  val_rank1=nan  sim_gain=-0.3302  |delta|=33.9664
+[fl]   round  29/30  rank1=0.0042  val_rank1=nan  sim_gain=-0.3232  |delta|=33.9852
+[fl]   round  30/30  rank1=0.0046  val_rank1=nan  sim_gain=-0.3187  |delta|=33.9498
+[fl] federated: rank1=0.0046  tpir@fpir=0.0001=0.0000  tpir@fpir=0.001=0.0000  tpir@fpir=0.01=0.0000  tpir@fpir=0.1=0.0002  ver_auc=0.5511
+[exp]   sigma=1.00  eps=  40.007  rank1=0.0046  clipped=0.0
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   1/30  rank1=0.0025  val_rank1=nan  sim_gain=+0.0248  |delta|=67.9603
+[fl]   round   2/30  rank1=0.0040  val_rank1=nan  sim_gain=-0.2870  |delta|=68.0445
+[fl]   round   3/30  rank1=0.0022  val_rank1=nan  sim_gain=-0.3211  |delta|=68.0580
+[fl]   round   4/30  rank1=0.0027  val_rank1=nan  sim_gain=-0.3177  |delta|=68.0339
+[fl]   round   5/30  rank1=0.0025  val_rank1=nan  sim_gain=-0.3360  |delta|=67.9267
+[fl]   round   6/30  rank1=0.0013  val_rank1=nan  sim_gain=-0.3179  |delta|=68.1870
+[fl]   round   7/30  rank1=0.0016  val_rank1=nan  sim_gain=-0.2993  |delta|=67.9011
+[fl]   round   8/30  rank1=0.0017  val_rank1=nan  sim_gain=-0.2898  |delta|=68.0497
+[fl]   round   9/30  rank1=0.0013  val_rank1=nan  sim_gain=-0.2887  |delta|=68.0950
+[fl]   round  10/30  rank1=0.0020  val_rank1=nan  sim_gain=-0.2811  |delta|=68.1172
+[fl]   round  11/30  rank1=0.0016  val_rank1=nan  sim_gain=-0.2710  |delta|=67.7463
+[fl]   round  12/30  rank1=0.0017  val_rank1=nan  sim_gain=-0.2690  |delta|=68.0816
+[fl]   round  13/30  rank1=0.0029  val_rank1=nan  sim_gain=-0.2678  |delta|=67.9516
+[fl]   round  14/30  rank1=0.0038  val_rank1=nan  sim_gain=-0.2644  |delta|=67.9043
+[fl]   round  15/30  rank1=0.0032  val_rank1=nan  sim_gain=-0.2811  |delta|=67.9365
+[fl]   round  16/30  rank1=0.0020  val_rank1=nan  sim_gain=-0.2826  |delta|=68.0015
+[fl]   round  17/30  rank1=0.0028  val_rank1=nan  sim_gain=-0.2860  |delta|=68.1059
+[fl]   round  18/30  rank1=0.0034  val_rank1=nan  sim_gain=-0.2846  |delta|=68.0056
+[fl]   round  19/30  rank1=0.0025  val_rank1=nan  sim_gain=-0.2838  |delta|=67.9774
+[fl]   round  20/30  rank1=0.0021  val_rank1=nan  sim_gain=-0.2919  |delta|=68.1102
+[fl]   round  21/30  rank1=0.0015  val_rank1=nan  sim_gain=-0.2893  |delta|=68.0407
+[fl]   round  22/30  rank1=0.0010  val_rank1=nan  sim_gain=-0.2739  |delta|=68.1051
+[fl]   round  23/30  rank1=0.0016  val_rank1=nan  sim_gain=-0.2748  |delta|=67.9416
+[fl]   round  24/30  rank1=0.0009  val_rank1=nan  sim_gain=-0.2745  |delta|=67.9520
+[fl]   round  25/30  rank1=0.0017  val_rank1=nan  sim_gain=-0.2826  |delta|=68.0605
+[fl]   round  26/30  rank1=0.0017  val_rank1=nan  sim_gain=-0.2865  |delta|=68.0708
+[fl]   round  27/30  rank1=0.0013  val_rank1=nan  sim_gain=-0.2887  |delta|=67.9393
+[fl]   round  28/30  rank1=0.0020  val_rank1=nan  sim_gain=-0.2965  |delta|=67.9025
+[fl]   round  29/30  rank1=0.0015  val_rank1=nan  sim_gain=-0.2963  |delta|=68.1386
+[fl]   round  30/30  rank1=0.0011  val_rank1=nan  sim_gain=-0.2947  |delta|=68.0089
+[fl] federated: rank1=0.0011  tpir@fpir=0.0001=0.0000  tpir@fpir=0.001=0.0000  tpir@fpir=0.01=0.0000  tpir@fpir=0.1=0.0001  ver_auc=0.5119
+[exp]   sigma=2.00  eps=  15.929  rank1=0.0011  clipped=0.0
+[exp] masking: 30 rounds, with and without
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   1/30  rank1=0.9709  val_rank1=nan  sim_gain=+0.0175  |delta|=0.1772
+[fl]   round   2/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0166  |delta|=0.1449
+[fl]   round   3/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0225  |delta|=0.1325
+[fl]   round   4/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0174  |delta|=0.1257
+[fl]   round   5/30  rank1=0.9705  val_rank1=nan  sim_gain=+0.0186  |delta|=0.1211
+[fl]   round   6/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0168  |delta|=0.1208
+[fl]   round   7/30  rank1=0.9711  val_rank1=nan  sim_gain=+0.0144  |delta|=0.1161
+[fl]   round   8/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0210  |delta|=0.1136
+[fl]   round   9/30  rank1=0.9711  val_rank1=nan  sim_gain=+0.0199  |delta|=0.1082
+[fl]   round  10/30  rank1=0.9710  val_rank1=nan  sim_gain=+0.0278  |delta|=0.1066
+[fl]   round  11/30  rank1=0.9710  val_rank1=nan  sim_gain=+0.0052  |delta|=0.1028
+[fl]   round  12/30  rank1=0.9711  val_rank1=nan  sim_gain=+0.0207  |delta|=0.0971
+[fl]   round  13/30  rank1=0.9708  val_rank1=nan  sim_gain=+0.0166  |delta|=0.0936
+[fl]   round  14/30  rank1=0.9711  val_rank1=nan  sim_gain=+0.0167  |delta|=0.0885
+[fl]   round  15/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0312  |delta|=0.0833
+[fl]   round  16/30  rank1=0.9711  val_rank1=nan  sim_gain=+0.0214  |delta|=0.0772
+[fl]   round  17/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0170  |delta|=0.0712
+[fl]   round  18/30  rank1=0.9710  val_rank1=nan  sim_gain=+0.0195  |delta|=0.0662
+[fl]   round  19/30  rank1=0.9710  val_rank1=nan  sim_gain=+0.0196  |delta|=0.0592
+[fl]   round  20/30  rank1=0.9711  val_rank1=nan  sim_gain=+0.0159  |delta|=0.0534
+[fl]   round  21/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0208  |delta|=0.0480
+[fl]   round  22/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0173  |delta|=0.0409
+[fl]   round  23/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0165  |delta|=0.0346
+[fl]   round  24/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0138  |delta|=0.0286
+[fl]   round  25/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0160  |delta|=0.0226
+[fl]   round  26/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0130  |delta|=0.0167
+[fl]   round  27/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0127  |delta|=0.0114
+[fl]   round  28/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0119  |delta|=0.0070
+[fl]   round  29/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0112  |delta|=0.0033
+[fl]   round  30/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0109  |delta|=0.0009
+[fl] federated: rank1=0.9713  tpir@fpir=0.0001=0.5207  tpir@fpir=0.001=0.7471  tpir@fpir=0.01=0.8788  tpir@fpir=0.1=0.9421  ver_auc=0.9404
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   1/30  rank1=0.9709  val_rank1=nan  sim_gain=+0.0175  |delta|=0.1772
+[fl]   round   2/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0166  |delta|=0.1449
+[fl]   round   3/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0225  |delta|=0.1325
+[fl]   round   4/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0174  |delta|=0.1257
+[fl]   round   5/30  rank1=0.9705  val_rank1=nan  sim_gain=+0.0186  |delta|=0.1211
+[fl]   round   6/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0168  |delta|=0.1208
+[fl]   round   7/30  rank1=0.9711  val_rank1=nan  sim_gain=+0.0144  |delta|=0.1161
+[fl]   round   8/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0210  |delta|=0.1136
+[fl]   round   9/30  rank1=0.9711  val_rank1=nan  sim_gain=+0.0199  |delta|=0.1082
+[fl]   round  10/30  rank1=0.9710  val_rank1=nan  sim_gain=+0.0278  |delta|=0.1066
+[fl]   round  11/30  rank1=0.9710  val_rank1=nan  sim_gain=+0.0052  |delta|=0.1028
+[fl]   round  12/30  rank1=0.9711  val_rank1=nan  sim_gain=+0.0207  |delta|=0.0971
+[fl]   round  13/30  rank1=0.9708  val_rank1=nan  sim_gain=+0.0166  |delta|=0.0936
+[fl]   round  14/30  rank1=0.9711  val_rank1=nan  sim_gain=+0.0167  |delta|=0.0885
+[fl]   round  15/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0312  |delta|=0.0833
+[fl]   round  16/30  rank1=0.9711  val_rank1=nan  sim_gain=+0.0214  |delta|=0.0772
+[fl]   round  17/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0170  |delta|=0.0712
+[fl]   round  18/30  rank1=0.9710  val_rank1=nan  sim_gain=+0.0195  |delta|=0.0662
+[fl]   round  19/30  rank1=0.9710  val_rank1=nan  sim_gain=+0.0196  |delta|=0.0592
+[fl]   round  20/30  rank1=0.9711  val_rank1=nan  sim_gain=+0.0159  |delta|=0.0534
+[fl]   round  21/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0208  |delta|=0.0480
+[fl]   round  22/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0173  |delta|=0.0409
+[fl]   round  23/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0165  |delta|=0.0346
+[fl]   round  24/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0138  |delta|=0.0286
+[fl]   round  25/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0160  |delta|=0.0226
+[fl]   round  26/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0130  |delta|=0.0167
+[fl]   round  27/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0127  |delta|=0.0114
+[fl]   round  28/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0119  |delta|=0.0070
+[fl]   round  29/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0112  |delta|=0.0033
+[fl]   round  30/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0109  |delta|=0.0009
+[fl] federated: rank1=0.9713  tpir@fpir=0.0001=0.5207  tpir@fpir=0.001=0.7471  tpir@fpir=0.01=0.8788  tpir@fpir=0.1=0.9421  ver_auc=0.9404
+[exp]   rank1 plain=0.9713  masked=0.9713  difference=+0.00000
+[exp]   wall clock 89.2s -> 92.0s (1.03x)
+[exp] templates: sweeping [32, 64, 96, 128, 256, 512] bits
+[exp]   float embeddings (unprotected): rank1=0.9715
+[exp]     32 bits ( 4 bytes): rank1=0.1069  cost=+0.8645
+[exp]     64 bits ( 8 bytes): rank1=0.2931  cost=+0.6784
+[exp]     96 bits (12 bytes): rank1=0.4602  cost=+0.5113
+[exp]    128 bits (16 bytes): rank1=0.5826  cost=+0.3889
+[exp]    256 bits (32 bytes): rank1=0.8138  cost=+0.1577
+[exp]    512 bits (64 bytes): rank1=0.9244  cost=+0.0471
+[exp] fedprox: mu in [0.0, 0.01, 0.1, 1.0], 30 rounds each
+[fl] federated: FedAvg, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   1/30  rank1=0.9707  val_rank1=nan  sim_gain=+0.0171  |delta|=0.3827
+[fl]   round   2/30  rank1=0.9709  val_rank1=nan  sim_gain=+0.0170  |delta|=0.3482
+[fl]   round   3/30  rank1=0.9707  val_rank1=nan  sim_gain=+0.0225  |delta|=0.3231
+[fl]   round   4/30  rank1=0.9709  val_rank1=nan  sim_gain=+0.0188  |delta|=0.3040
+[fl]   round   5/30  rank1=0.9702  val_rank1=nan  sim_gain=+0.0185  |delta|=0.2914
+[fl]   round   6/30  rank1=0.9710  val_rank1=nan  sim_gain=+0.0177  |delta|=0.2815
+[fl]   round   7/30  rank1=0.9708  val_rank1=nan  sim_gain=+0.0164  |delta|=0.2693
+[fl]   round   8/30  rank1=0.9707  val_rank1=nan  sim_gain=+0.0263  |delta|=0.2586
+[fl]   round   9/30  rank1=0.9707  val_rank1=nan  sim_gain=+0.0211  |delta|=0.2445
+[fl]   round  10/30  rank1=0.9706  val_rank1=nan  sim_gain=+0.0289  |delta|=0.2328
+[fl]   round  11/30  rank1=0.9706  val_rank1=nan  sim_gain=+0.0066  |delta|=0.2193
+[fl]   round  12/30  rank1=0.9705  val_rank1=nan  sim_gain=+0.0233  |delta|=0.2063
+[fl]   round  13/30  rank1=0.9705  val_rank1=nan  sim_gain=+0.0192  |delta|=0.1928
+[fl]   round  14/30  rank1=0.9710  val_rank1=nan  sim_gain=+0.0213  |delta|=0.1771
+[fl]   round  15/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0357  |delta|=0.1598
+[fl]   round  16/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0263  |delta|=0.1462
+[fl]   round  17/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0205  |delta|=0.1300
+[fl]   round  18/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0225  |delta|=0.1153
+[fl]   round  19/30  rank1=0.9709  val_rank1=nan  sim_gain=+0.0223  |delta|=0.0998
+[fl]   round  20/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0183  |delta|=0.0856
+[fl]   round  21/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0234  |delta|=0.0734
+[fl]   round  22/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0194  |delta|=0.0598
+[fl]   round  23/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0188  |delta|=0.0480
+[fl]   round  24/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0155  |delta|=0.0374
+[fl]   round  25/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0180  |delta|=0.0283
+[fl]   round  26/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0148  |delta|=0.0199
+[fl]   round  27/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0147  |delta|=0.0128
+[fl]   round  28/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0138  |delta|=0.0076
+[fl]   round  29/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0131  |delta|=0.0033
+[fl]   round  30/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0127  |delta|=0.0008
+[fl] federated: rank1=0.9714  tpir@fpir=0.0001=0.5112  tpir@fpir=0.001=0.7610  tpir@fpir=0.01=0.8787  tpir@fpir=0.1=0.9427  ver_auc=0.9409
+[exp]   mu=0     rank1=0.9714  |delta|=0.0008
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   1/30  rank1=0.9707  val_rank1=nan  sim_gain=+0.0171  |delta|=0.3121
+[fl]   round   2/30  rank1=0.9710  val_rank1=nan  sim_gain=+0.0169  |delta|=0.2833
+[fl]   round   3/30  rank1=0.9709  val_rank1=nan  sim_gain=+0.0223  |delta|=0.2655
+[fl]   round   4/30  rank1=0.9710  val_rank1=nan  sim_gain=+0.0185  |delta|=0.2523
+[fl]   round   5/30  rank1=0.9703  val_rank1=nan  sim_gain=+0.0185  |delta|=0.2423
+[fl]   round   6/30  rank1=0.9711  val_rank1=nan  sim_gain=+0.0174  |delta|=0.2373
+[fl]   round   7/30  rank1=0.9709  val_rank1=nan  sim_gain=+0.0161  |delta|=0.2269
+[fl]   round   8/30  rank1=0.9707  val_rank1=nan  sim_gain=+0.0258  |delta|=0.2179
+[fl]   round   9/30  rank1=0.9707  val_rank1=nan  sim_gain=+0.0210  |delta|=0.2070
+[fl]   round  10/30  rank1=0.9709  val_rank1=nan  sim_gain=+0.0289  |delta|=0.1993
+[fl]   round  11/30  rank1=0.9709  val_rank1=nan  sim_gain=+0.0064  |delta|=0.1891
+[fl]   round  12/30  rank1=0.9706  val_rank1=nan  sim_gain=+0.0231  |delta|=0.1772
+[fl]   round  13/30  rank1=0.9705  val_rank1=nan  sim_gain=+0.0191  |delta|=0.1676
+[fl]   round  14/30  rank1=0.9710  val_rank1=nan  sim_gain=+0.0209  |delta|=0.1550
+[fl]   round  15/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0357  |delta|=0.1415
+[fl]   round  16/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0258  |delta|=0.1297
+[fl]   round  17/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0204  |delta|=0.1166
+[fl]   round  18/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0225  |delta|=0.1050
+[fl]   round  19/30  rank1=0.9711  val_rank1=nan  sim_gain=+0.0223  |delta|=0.0912
+[fl]   round  20/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0183  |delta|=0.0793
+[fl]   round  21/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0234  |delta|=0.0686
+[fl]   round  22/30  rank1=0.9710  val_rank1=nan  sim_gain=+0.0195  |delta|=0.0567
+[fl]   round  23/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0188  |delta|=0.0459
+[fl]   round  24/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0156  |delta|=0.0361
+[fl]   round  25/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0181  |delta|=0.0275
+[fl]   round  26/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0149  |delta|=0.0195
+[fl]   round  27/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0147  |delta|=0.0127
+[fl]   round  28/30  rank1=0.9716  val_rank1=nan  sim_gain=+0.0139  |delta|=0.0076
+[fl]   round  29/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0131  |delta|=0.0033
+[fl]   round  30/30  rank1=0.9715  val_rank1=nan  sim_gain=+0.0128  |delta|=0.0008
+[fl] federated: rank1=0.9715  tpir@fpir=0.0001=0.5142  tpir@fpir=0.001=0.7596  tpir@fpir=0.01=0.8787  tpir@fpir=0.1=0.9428  ver_auc=0.9408
+[exp]   mu=0.01  rank1=0.9715  |delta|=0.0008
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   1/30  rank1=0.9709  val_rank1=nan  sim_gain=+0.0172  |delta|=0.2181
+[fl]   round   2/30  rank1=0.9711  val_rank1=nan  sim_gain=+0.0167  |delta|=0.1841
+[fl]   round   3/30  rank1=0.9711  val_rank1=nan  sim_gain=+0.0225  |delta|=0.1735
+[fl]   round   4/30  rank1=0.9711  val_rank1=nan  sim_gain=+0.0179  |delta|=0.1666
+[fl]   round   5/30  rank1=0.9703  val_rank1=nan  sim_gain=+0.0183  |delta|=0.1613
+[fl]   round   6/30  rank1=0.9709  val_rank1=nan  sim_gain=+0.0171  |delta|=0.1604
+[fl]   round   7/30  rank1=0.9711  val_rank1=nan  sim_gain=+0.0153  |delta|=0.1550
+[fl]   round   8/30  rank1=0.9709  val_rank1=nan  sim_gain=+0.0237  |delta|=0.1512
+[fl]   round   9/30  rank1=0.9709  val_rank1=nan  sim_gain=+0.0209  |delta|=0.1441
+[fl]   round  10/30  rank1=0.9709  val_rank1=nan  sim_gain=+0.0286  |delta|=0.1410
+[fl]   round  11/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0056  |delta|=0.1355
+[fl]   round  12/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0219  |delta|=0.1281
+[fl]   round  13/30  rank1=0.9705  val_rank1=nan  sim_gain=+0.0175  |delta|=0.1230
+[fl]   round  14/30  rank1=0.9710  val_rank1=nan  sim_gain=+0.0187  |delta|=0.1153
+[fl]   round  15/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0337  |delta|=0.1075
+[fl]   round  16/30  rank1=0.9711  val_rank1=nan  sim_gain=+0.0236  |delta|=0.0996
+[fl]   round  17/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0187  |delta|=0.0911
+[fl]   round  18/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0211  |delta|=0.0835
+[fl]   round  19/30  rank1=0.9711  val_rank1=nan  sim_gain=+0.0209  |delta|=0.0740
+[fl]   round  20/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0172  |delta|=0.0657
+[fl]   round  21/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0221  |delta|=0.0579
+[fl]   round  22/30  rank1=0.9711  val_rank1=nan  sim_gain=+0.0184  |delta|=0.0485
+[fl]   round  23/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0176  |delta|=0.0401
+[fl]   round  24/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0147  |delta|=0.0323
+[fl]   round  25/30  rank1=0.9716  val_rank1=nan  sim_gain=+0.0171  |delta|=0.0249
+[fl]   round  26/30  rank1=0.9716  val_rank1=nan  sim_gain=+0.0139  |delta|=0.0181
+[fl]   round  27/30  rank1=0.9715  val_rank1=nan  sim_gain=+0.0137  |delta|=0.0120
+[fl]   round  28/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0128  |delta|=0.0073
+[fl]   round  29/30  rank1=0.9715  val_rank1=nan  sim_gain=+0.0121  |delta|=0.0033
+[fl]   round  30/30  rank1=0.9715  val_rank1=nan  sim_gain=+0.0118  |delta|=0.0009
+[fl] federated: rank1=0.9715  tpir@fpir=0.0001=0.5208  tpir@fpir=0.001=0.7556  tpir@fpir=0.01=0.8788  tpir@fpir=0.1=0.9429  ver_auc=0.9406
+[exp]   mu=0.1   rank1=0.9715  |delta|=0.0009
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+[fl]   round   1/30  rank1=0.9710  val_rank1=nan  sim_gain=+0.0162  |delta|=0.1338
+[fl]   round   2/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0154  |delta|=0.1116
+[fl]   round   3/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0209  |delta|=0.1000
+[fl]   round   4/30  rank1=0.9716  val_rank1=nan  sim_gain=+0.0166  |delta|=0.0940
+[fl]   round   5/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0190  |delta|=0.0892
+[fl]   round   6/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0156  |delta|=0.0877
+[fl]   round   7/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0136  |delta|=0.0839
+[fl]   round   8/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0164  |delta|=0.0816
+[fl]   round   9/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0172  |delta|=0.0772
+[fl]   round  10/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0265  |delta|=0.0764
+[fl]   round  11/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0066  |delta|=0.0745
+[fl]   round  12/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0191  |delta|=0.0702
+[fl]   round  13/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0167  |delta|=0.0674
+[fl]   round  14/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0148  |delta|=0.0644
+[fl]   round  15/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0270  |delta|=0.0612
+[fl]   round  16/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0184  |delta|=0.0569
+[fl]   round  17/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0148  |delta|=0.0523
+[fl]   round  18/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0174  |delta|=0.0488
+[fl]   round  19/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0180  |delta|=0.0438
+[fl]   round  20/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0141  |delta|=0.0396
+[fl]   round  21/30  rank1=0.9713  val_rank1=nan  sim_gain=+0.0189  |delta|=0.0359
+[fl]   round  22/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0159  |delta|=0.0306
+[fl]   round  23/30  rank1=0.9712  val_rank1=nan  sim_gain=+0.0152  |delta|=0.0263
+[fl]   round  24/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0127  |delta|=0.0222
+[fl]   round  25/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0148  |delta|=0.0179
+[fl]   round  26/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0120  |delta|=0.0138
+[fl]   round  27/30  rank1=0.9715  val_rank1=nan  sim_gain=+0.0119  |delta|=0.0099
+[fl]   round  28/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0111  |delta|=0.0064
+[fl]   round  29/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0104  |delta|=0.0031
+[fl]   round  30/30  rank1=0.9714  val_rank1=nan  sim_gain=+0.0102  |delta|=0.0009
+[fl] federated: rank1=0.9714  tpir@fpir=0.0001=0.5178  tpir@fpir=0.001=0.7383  tpir@fpir=0.01=0.8787  tpir@fpir=0.1=0.9425  ver_auc=0.9403
+[exp]   mu=1     rank1=0.9714  |delta|=0.0009
+[exp] mia: loss-threshold membership inference
+[exp]   holding back 87611 images of training identities; retraining for 30 rounds
+[fl] federated: FedProx, 5 nodes, 30 rounds, 5 sampled per round
+/home/ubuntu/fedmps/fedmps/fl/loop.py:384: RuntimeWarning: Mean of empty slice
+  "mean_val_loss": float(np.nanmean(
+/home/ubuntu/fedmps/fedmps/fl/loop.py:386: RuntimeWarning: Mean of empty slice
+  "mean_sim_gain": float(np.nanmean(
+[fl]   round   1/30  rank1=0.9703  val_rank1=nan  sim_gain=+nan  |delta|=0.1611
+[fl]   round   2/30  rank1=0.9707  val_rank1=nan  sim_gain=+nan  |delta|=0.1385
+[fl]   round   3/30  rank1=0.9707  val_rank1=nan  sim_gain=+nan  |delta|=0.1283
+[fl]   round   4/30  rank1=0.9705  val_rank1=nan  sim_gain=+nan  |delta|=0.1218
+[fl]   round   5/30  rank1=0.9706  val_rank1=nan  sim_gain=+nan  |delta|=0.1197
+[fl]   round   6/30  rank1=0.9708  val_rank1=nan  sim_gain=+nan  |delta|=0.1145
+[fl]   round   7/30  rank1=0.9709  val_rank1=nan  sim_gain=+nan  |delta|=0.1128
+[fl]   round   8/30  rank1=0.9708  val_rank1=nan  sim_gain=+nan  |delta|=0.1077
+[fl]   round   9/30  rank1=0.9711  val_rank1=nan  sim_gain=+nan  |delta|=0.1057
+[fl]   round  10/30  rank1=0.9708  val_rank1=nan  sim_gain=+nan  |delta|=0.0994
+[fl]   round  11/30  rank1=0.9704  val_rank1=nan  sim_gain=+nan  |delta|=0.0984
+[fl]   round  12/30  rank1=0.9703  val_rank1=nan  sim_gain=+nan  |delta|=0.0950
+[fl]   round  13/30  rank1=0.9704  val_rank1=nan  sim_gain=+nan  |delta|=0.0884
+[fl]   round  14/30  rank1=0.9705  val_rank1=nan  sim_gain=+nan  |delta|=0.0847
+[fl]   round  15/30  rank1=0.9704  val_rank1=nan  sim_gain=+nan  |delta|=0.0787
+[fl]   round  16/30  rank1=0.9707  val_rank1=nan  sim_gain=+nan  |delta|=0.0734
+[fl]   round  17/30  rank1=0.9704  val_rank1=nan  sim_gain=+nan  |delta|=0.0683
+[fl]   round  18/30  rank1=0.9707  val_rank1=nan  sim_gain=+nan  |delta|=0.0624
+[fl]   round  19/30  rank1=0.9705  val_rank1=nan  sim_gain=+nan  |delta|=0.0562
+[fl]   round  20/30  rank1=0.9710  val_rank1=nan  sim_gain=+nan  |delta|=0.0501
+[fl]   round  21/30  rank1=0.9706  val_rank1=nan  sim_gain=+nan  |delta|=0.0448
+[fl]   round  22/30  rank1=0.9706  val_rank1=nan  sim_gain=+nan  |delta|=0.0380
+[fl]   round  23/30  rank1=0.9706  val_rank1=nan  sim_gain=+nan  |delta|=0.0322
+[fl]   round  24/30  rank1=0.9705  val_rank1=nan  sim_gain=+nan  |delta|=0.0263
+[fl]   round  25/30  rank1=0.9706  val_rank1=nan  sim_gain=+nan  |delta|=0.0206
+[fl]   round  26/30  rank1=0.9705  val_rank1=nan  sim_gain=+nan  |delta|=0.0151
+[fl]   round  27/30  rank1=0.9706  val_rank1=nan  sim_gain=+nan  |delta|=0.0102
+[fl]   round  28/30  rank1=0.9706  val_rank1=nan  sim_gain=+nan  |delta|=0.0061
+[fl]   round  29/30  rank1=0.9706  val_rank1=nan  sim_gain=+nan  |delta|=0.0029
+[fl]   round  30/30  rank1=0.9706  val_rank1=nan  sim_gain=+nan  |delta|=0.0008
+[fl] federated: rank1=0.9706  tpir@fpir=0.0001=0.5454  tpir@fpir=0.001=0.7633  tpir@fpir=0.01=0.8819  tpir@fpir=0.1=0.9407  ver_auc=0.9402
+[exp]   sample level    AUC = 0.5010  (87611 per class)
+[exp]   identity level  AUC = 0.5763  (190646 per class)
+
+[run] wrote /home/ubuntu/fedmps/results/experiments_vgghq.json
+
+[run] WARNINGS - read these before writing anything up:
+    - [three_way] FEDERATED BEAT CENTRALISED. Check two things, in this order, before concluding anything.
+      (1) Leakage. Confirm no identity and no image index is shared between any node and the held-out set. If they are, the run is invalid.
+      (2) Matched tuning. Centralised is only an upper bound if it is regularised at least as well as the federated arm. An under-regularised baseline overfits and stops bounding anything, which looks identical to leakage in this table but is not. run_centralised trains one pooled client under the same rounds, epochs and proximal term, so this should hold - but if you have changed either arm's hyperparameters independently, re-check it.
+      A small margin after both checks pass is a real, reportable result: averaging across heterogeneous clients is itself a regulariser, and on small non-IID data it can beat pooling.
+
+[run] rank-1 on held-out identities
+    no adapter     0.9733
+    local only     0.9620
+    federated      0.9734
+    centralised    0.9733
+exit 0 2026-10-25T15:37:19Z

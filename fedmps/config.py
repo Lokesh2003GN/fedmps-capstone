@@ -158,17 +158,19 @@ class PartitionConfig:
 
     The split is specified the way it is reviewed:
 
-        70%  central server   gallery + held-out evaluation
-        30%  across the nodes
-             20%  node training
-             10%  node validation
+        30%  central server   gallery + held-out validation
+        70%  across the nodes, all of it used for training
+
+    (The first thesis run used the opposite split, 70% held out and 30% at the
+    nodes. Runs from the "_hq" artefacts onward use 70% training, 30%
+    validation, as the supervisor asked.)
 
     What "central server" means here is worth being precise about, because in
     federated learning the server holds no training data at all - that is the
-    entire premise. The server's 70% is its *gallery and evaluation pool*: the
+    entire premise. The server's 30% is its *gallery and validation pool*: the
     reference photographs that arrive with a case report, and the held-out
     identities used to measure the system. Nobody trains on it. The nodes'
-    30% is operational camera data, and it never leaves the node it sits at.
+    70% is operational camera data, and it never leaves the node it sits at.
 
     Identities are split, not images. Every image of one person lands on one
     side of the line, so a face the system is asked to find at evaluation time
@@ -180,9 +182,9 @@ class PartitionConfig:
     n_nodes: int = 5
 
     # The three percentages. They must sum to 100.
-    server_pct: float = 70.0        # gallery + evaluation, never trained on
-    node_train_pct: float = 20.0    # local training, stays at the node
-    node_val_pct: float = 10.0      # local validation, stays at the node
+    server_pct: float = 30.0        # gallery + validation, never trained on
+    node_train_pct: float = 70.0    # local training, stays at the node
+    node_val_pct: float = 0.0       # nothing is held back from training here
 
     # Within a node, fraction of its images used for local validation.
     # Derived from the percentages above; see `resolve()`.
@@ -194,7 +196,7 @@ class PartitionConfig:
     unbalance_ratio: float = 3.0
 
     # Derived, kept so the rest of the code needs no changes.
-    test_identity_frac: float = 0.70
+    test_identity_frac: float = 0.30
 
     def resolve(self) -> "PartitionConfig":
         """Turn the three percentages into the fractions the code uses."""
@@ -292,6 +294,16 @@ class AdapterConfig:
     dropout: float = 0.1
     residual: bool = True
 
+    # What is federated.
+    #   "mlp"  - the residual MLP above, on the 512-d output embedding.
+    #   "head" - the end of the backbone itself: its last BatchNorm scale and
+    #            shift, plus a rank-`lora_rank` update of its final fully
+    #            connected layer, trained on the layer-4 features saved by
+    #            training/01b_prepare_stream.py. See models/head.py.
+    kind: str = "mlp"
+    lora_rank: int = 16
+    lora_alpha: float = 16.0
+
 
 # --------------------------------------------------------------------------
 # Training and federation (consumed in Phase 2)
@@ -315,10 +327,29 @@ class TrainConfig:
     margin: float = 0.3            # triplet / cosine
     hard_negative_ratio: float = 0.5   # triplet: how often to take the hardest
 
+    # Learning-rate schedule over the whole run (rounds for the federated and
+    # centralised arms, epochs for local-only). "cosine" decays lr to
+    # lr * lr_min_frac, so late rounds make small updates and the validation
+    # curve settles; "constant" is the schedule of the first thesis run.
+    lr_schedule: str = "cosine"
+    lr_min_frac: float = 0.0
+    # Keep the node training tensors in float16 on the device. Halves memory
+    # when millions of images are resident on a 16 GB GPU; batches are cast
+    # back to float32 before the adapter sees them.
+    store_fp16: bool = False
+    # Fraction of a node's data passed over in one round. 1.0 is a full local
+    # epoch. The head trains on features read from disk, so a full epoch
+    # every round for 200 rounds would be 200 passes; a fraction keeps the
+    # total near a few tens of passes, and every arm uses the same fraction.
+    local_epoch_frac: float = 1.0
+
 
 @dataclass
 class FLConfig:
-    rounds: int = 30
+    # 150 is the minimum and 200 the maximum agreed with the supervisor. With
+    # no early stopping every run goes the full 200, and the figure shows all
+    # of them.
+    rounds: int = 200
     clients_per_round: Optional[int] = None  # None = all nodes every round
     # FedProx proximal term. 0.0 disables it, which makes this plain FedAvg.
     fedprox_mu: float = 3.0
@@ -331,9 +362,12 @@ class FLConfig:
     # are disjoint from training and from the test set, so choosing the best
     # round on them is not leakage. (The per-image val_idx in partition.json
     # shares identities with training, so it is not used for this.)
-    val_identity_frac: float = 0.2
+    # 0.0 means every node identity trains: the 70% is all training data and
+    # the 30% held out is the validation set. Rounds are therefore never
+    # chosen on held-out data; the last round is the one reported.
+    val_identity_frac: float = 0.0
     # Keep the best validation round instead of the last one.
-    early_stop: bool = True
+    early_stop: bool = False
 
 
 # --------------------------------------------------------------------------
@@ -416,8 +450,10 @@ class PipelineConfig:
 
 @dataclass
 class EvalConfig:
+    # 10% is added so the table can sit beside the VGGFace2 paper and FedFS,
+    # which report TPIR at FPIR 0.1 / 0.01 (/ 0.001).
     fpir_points: List[float] = field(
-        default_factory=lambda: [1e-2, 1e-3, 1e-4]
+        default_factory=lambda: [1e-1, 1e-2, 1e-3, 1e-4]
     )
     far_points: List[float] = field(
         default_factory=lambda: [1e-2, 1e-3, 1e-4]
@@ -428,7 +464,9 @@ class EvalConfig:
     # non-mates there is no open-set evaluation, only a closed-set one.
     gallery_frac: float = 0.5
     # How many verification pairs to sample for the LFW-comparable number.
-    n_verification_pairs: int = 6000
+    # 6,000 pairs cannot resolve FAR 1e-4 (the finest is 3.3e-4). 200,000 can
+    # (finest 1e-5), which is what the papers in the comparison table report.
+    n_verification_pairs: int = 200000
     n_bootstrap: int = 0  # 0 = no confidence intervals
     eval_every: int = 1   # federated rounds between global evaluations
 
