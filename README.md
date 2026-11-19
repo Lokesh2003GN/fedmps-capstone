@@ -47,7 +47,7 @@ Test set: a 691-person watchlist with 30,540 probes, plus 31,850 probes of peopl
 
 | Arm | Rank-1 | TPIR @ FPIR 1% | TAR @ FAR 0.1% | EER |
 |---|---|---|---|---|
-| Clean probes (upper bound) | 0.9989 | 0.9912 | 0.8903 | — |
+| Clean probes (upper bound) | 0.9989 | 0.9912 | 0.8903 | 8.3% |
 | Frozen ArcFace + scoring layer | 0.9733 | 0.9054 | 0.6820 | 12.1% |
 | Centralised adapter (pooled data) | 0.9733 | 0.9080 | 0.6801 | 11.7% |
 | **Federated adapter (FedMPS)** | **0.9734** | **0.9107** | **0.6835** | **11.8%** |
